@@ -19,6 +19,8 @@ from .configuration_hierarchical_model import HierarchicalModelConfig
 
 MAX_2D_POSITION_EMBEDDINGS = 1024
 
+#TODO: Rename textline to group 
+#TODO: Rename encoder and model to group encoder and page encoder 
 
 def instantiate_textline_encoder(config):
 
@@ -146,14 +148,17 @@ class SimpleHierarchicalModel(HierarchicalPreTrainedModel):
         self.textline_model = instantiate_textline_model(config)
 
         self.textline_encoder_output = config.textline_encoder_output
-        self.use_bbox_for_textline_model = self._check_use_bbox_for_textline_model()
+        self.use_bbox_for_textline_model:bool = self._check_use_bbox_for_textline_model()
         if not config.load_weights_from_existing_model:
             self.init_weights()
 
-    def _check_use_bbox_for_textline_model(self):
+    def _check_use_bbox_for_textline_model(self) -> bool:
+        # TODO: Explain
         signature = inspect.signature(self.textline_model.forward)
         signature_columns = list(signature.parameters.keys())
         return "bbox" in signature_columns
+    
+    # TODO: Add bbox to textline encoder
 
     def forward(
         self,
@@ -170,20 +175,22 @@ class SimpleHierarchicalModel(HierarchicalPreTrainedModel):
         )
 
         # Preprocess the input
+        #TODO: Change Ls to something about groups
         B, Ls, Ts = input_ids.shape  # Lines, Tokens
         input_shape = input_ids.size()
         device = input_ids.device
 
-        if attention_mask is None:
+        if attention_mask is None: #TODO: Change this name to group_level_attention_mask
             attention_mask = torch.ones(input_shape, device=device)
         if token_type_ids is None:
             token_type_ids = torch.zeros(input_shape, dtype=torch.long, device=device)
-        if group_level_attention_mask is None:
+        if group_level_attention_mask is None: # TODO: page_level_attention_mask
             attention_mask = torch.ones((B, Ls), device=device)
         if bbox is None:
             bbox = torch.zeros(
                 tuple(list(input_shape)[:-1] + [4]), dtype=torch.long, device=device
             )
+            # There are 4 elements for each bounding box (left, top, right, bottom)
             # Currently we only accept line-level bbox
 
         input_ids = input_ids.reshape(B * Ls, -1)
@@ -195,6 +202,7 @@ class SimpleHierarchicalModel(HierarchicalPreTrainedModel):
             token_type_ids=token_type_ids,
         )  # (B * Ls, Ts, hidden_state)
 
+        # TODO: Change this to a pooling method 
         if self.textline_encoder_output.lower() == "cls":
             encoded_textlines = encoded_textlines.last_hidden_state[:, 0, :]
         elif self.textline_encoder_output.lower() == "sep":
@@ -203,6 +211,7 @@ class SimpleHierarchicalModel(HierarchicalPreTrainedModel):
             # _, ys = torch.where(input_ids == 102)
             # print(ys) 
             encoded_textlines = encoded_textlines.last_hidden_state[input_ids == 102]
+            #TODO: Move this into config_class
         elif self.textline_encoder_output.lower() == "last":
             encoded_textlines = encoded_textlines.last_hidden_state[:, -1, :]
         elif self.textline_encoder_output.lower() == "average":
