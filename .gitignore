@@ -1,6 +1,25 @@
+# Project Specific 
+data
+data/ 
+runs/
+wandb/
+out/
+checkpoints/
+*.old/
+*.csv
 
-# vscode
-*.vscode
+# Mac Finder Configurations
+.DS_Store
+
+# IDEA configurations
+.idea/
+
+# IPython checkpoints
+.ipynb_checkpoints/
+log
+
+# Visual Studio Code
+.vscode/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -76,6 +95,10 @@ target/
 # Jupyter Notebook
 .ipynb_checkpoints
 
+# IPython
+profile_default/
+ipython_config.py
+
 # pyenv
 .python-version
 
@@ -106,6 +129,5 @@ venv.bak/
 
 # mypy
 .mypy_cache/
-
-.idea/
-
+.dmypy.json
+dmypy.json
