@@ -1,4 +1,4 @@
-# VILA🌴: Visual Layout for Scientific Text Classification
+# VILA🌴 <br> Incorporating **VI**sual **LA**yout Structures for Scientific Text Classification
 
 <a href="https://arxiv.org/abs/2106.00676"><img src="https://img.shields.io/badge/arXiv-2106.00676-b31b1b.svg" title="Layout Parser Paper"></a>
 <a href="https://github.com/Layout-Parser/layout-parser/blob/master/LICENSE"><img src="https://img.shields.io/pypi/l/layoutparser" title="Layout Parser uses Apache 2 License"></a>
