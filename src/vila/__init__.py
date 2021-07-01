@@ -1,2 +1,4 @@
 from .models import *
-from .datasets import *
+from .dataset import *
+
+__version__ = "0.0.1"

@@ -1,0 +1,27 @@
+torch>=1.5
+torchvision>=0.6.0
+
+pandas 
+
+# testing
+pytest
+
+# Sentence Boundary Detection 
+pysbd
+
+# For visual layout detection libraries 
+layoutparser>=0.2
+
+# HF 
+transformers==4.4.2
+datasets
+
+# For extracting PDF and images from the input
+pdfplumber
+pdf2image
+
+# Progress bar
+tqdm
+
+# For printing experiment results
+scikit-learn
