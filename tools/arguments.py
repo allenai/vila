@@ -75,9 +75,7 @@ class ModelArguments:
         assert self.added_special_sepration_token in ["BLK", "SEP"]
 
         if self.added_special_sepration_token == "BLK":
-            # Change the tokenizer file
             self.added_special_sepration_token = "[BLK]"
-            self.tokenizer_name = "../checkpoints/_pre_specified_weights/bert-base-uncased-tokenizer-with-blk"
 
         if self.added_special_sepration_token == "SEP":
             self.added_special_sepration_token = "[SEP]"
