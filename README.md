@@ -70,6 +70,33 @@ All training scripts are in the `./scripts` folder.
     bash train_ivila.sh s2-vl sentence BLK roberta-base 
       # We can also extract the sentence breaks using spacy and use them as indicators.
     ```
+3. Train the H-VILA models
+    ```bash
+    cd tools
+    python create_hvila_model_base_weights.py 
+
+    cd ../scripts
+    # bash train_hvila.sh \
+    #  [dataset-name] \
+    #  [H-VILA-names] \
+    #  [Group-Encoder-Output-Aggregation-Function] \
+    #  [How-to-Obtain-Bounding-Box] \
+    #  [Use-textline-or-block-as-the-group]
+
+    bash train_hvila.sh \
+      grotoap2 \
+      weak-strong-layoutlm \
+      average \
+      first \
+      row 
+    ```
+    In the above example, we use the:
+
+    1. *average* of the group encoder outputs for all tokens as the group representation 
+    2. the bounding box of the *first* token as the group's bounding box
+    3. textline (or row) to construct the groups
+
+
 
 ### Model Inference/Prediction 
 
