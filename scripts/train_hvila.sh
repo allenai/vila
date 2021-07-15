@@ -2,7 +2,7 @@ cd ../tools
 
 dataset_name="$1"
 model_name="$2"
-textline_encoder_output="$3"
+group_encoder_output="$3"
 group_bbox_agg="$4"
 agg_level="$5"
 
@@ -16,8 +16,8 @@ You might want to run the following command to generate them:
    exit 9999
 fi
 
-if [ "${textline_encoder_output}" == "" ]; then
-    textline_encoder_output="cls"
+if [ "${group_encoder_output}" == "" ]; then
+    group_encoder_output="cls"
 fi
 
 if [ "${group_bbox_agg}" == "" ]; then
@@ -68,14 +68,14 @@ esac
 echo "Dataset Name:                            $dataset_name"
 echo "Model Name:                              $model_name"
 echo "The number of training epochs:           $num_train_epochs"
-echo "Textline Encoding Output:                $textline_encoder_output"
+echo "Group Encoder Output Aggregation:        $group_encoder_output"
 echo "How to synthesize grouping bounding box: $group_bbox_agg"
-echo "The group level is:                      $agg_level"
+echo "Which group representation to use:       $agg_level"
 echo "The batch size for training:             $used_batch_size"
 echo "Will be evaluated each $eval_steps steps ($eval_per_epoch epochs)"
 
 output_name="hvila-$agg_level"
-model_save_name="${model_name//\//-}-$textline_encoder_output-$group_bbox_agg"
+model_save_name="${model_name//\//-}-$group_encoder_output-$group_bbox_agg"
 
 echo "The results will be saved in '../checkpoints/$dataset_name/$output_name/$model_save_name'"
 
@@ -97,6 +97,6 @@ python train-hvila.py \
   --per_device_eval_batch_size $used_batch_size \
   --warmup_steps 2000 \
   --agg_level $agg_level \
-  --textline_encoder_output $textline_encoder_output \
+  --textline_encoder_output $group_encoder_output \
   --group_bbox_agg $group_bbox_agg \
   --fp16 
