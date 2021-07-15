@@ -46,7 +46,7 @@ VILA
 ```
 
 Note:
-- We will provide the download link to the dataset very soon. 
+- We will provide the download links to the datasets very soon. 
 
 ### Training 
 
@@ -62,10 +62,13 @@ All training scripts are in the `./scripts` folder.
 2. Train the I-VILA models
     ```bash
     cd scripts
-    # bash train_ivila.sh [dataset-name] [how-to-obtain-layout-indicator] [used-special-token] [base-model-name]
-    bash train_ivila.sh grotoap2 row BLK microsoft/layoutlm-base-uncased # Row is an alias for textline 
+    # bash train_ivila.sh [dataset-name] [how-to-obtain-layout-indicators] [used-special-token] [base-model-name]
+    bash train_ivila.sh grotoap2 row BLK microsoft/layoutlm-base-uncased 
+      # Row is an alias for textline 
     bash train_ivila.sh docbank block SEP bert-base-uncased
-    bash train_ivila.sh s2-vl sentence BLK roberta-base # We can also extract the sentence breaks using spacy and use them as an indicator
+      # We can also use the default special tokens like SEP 
+    bash train_ivila.sh s2-vl sentence BLK roberta-base 
+      # We can also extract the sentence breaks using spacy and use them as indicators.
     ```
 
 ### Model Inference/Prediction 
