@@ -109,7 +109,7 @@ class SingleModelPrediction:
         model_config: ModelConfig,
         gt_name="label",
         pred_name="pred",
-        used_metric="gini",
+        used_metric="entropy",
     ):
 
         self.df = df
@@ -129,7 +129,7 @@ class SingleModelPrediction:
         model_config,
         most_frequent_category: int = None,
         label_mapping=None,
-        used_metric="gini",
+        used_metric="entropy",
         **kwargs,
     ):
         merged_df = _preprocess_prediction_table(
@@ -380,7 +380,7 @@ class MultiModelPrediction:
         experiment_name=None,
         most_frequent_category=None,
         label_mapping=None,
-        used_metric="gini",
+        used_metric="entropy",
         prediction_filename="test_predictions.csv",
     ):
 
@@ -609,7 +609,7 @@ class CombinedReport:
         trainer_states_name="trainer_state.json",
         all_results_name="all_results.json",
         training_args_name="training_args.bin",
-        used_metric="gini",
+        used_metric="entropy",
     ):
 
         predictions = MultiModelPrediction.from_experiment_folder(
