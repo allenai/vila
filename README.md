@@ -96,7 +96,32 @@ All training scripts are in the `./scripts` folder.
     2. the bounding box of the *first* token as the group's bounding box
     3. textline (or row) to construct the groups
 
+### Evaluation Toolkit 
 
+The evaluation toolkit can generate a detailed report for the prediction accuracy (marco F1 scores) and Visual Layout consistency (group entropy) for the prediction files `test_predictions.csv` produced by the training scripts. 
+
+1. Generate reports for a group of experiments for a specific dataset
+  ```bash
+    cd tools
+    python generate-eval.py --dataset_name grotoap2 --experiment_name baseline
+    # It will create a reports folder in ../checkpoints/grotoap2/baseline and store the 
+    # scores in the report.csv file. 
+  ```
+2. Generate reports for all experiments for a specific dataset
+  ```bash
+    cd tools
+    python generate-eval.py --dataset_name grotoap2
+    # It will create reports for all experiments in the ../checkpoints/grotoap2/ folder
+  ```
+3. Generate reports for per-class accuracy
+  ```bash
+    cd tools
+    python generate-eval.py --dataset_name grotoap2 --experiment_name baseline --store_per_class
+    # In additiona to the report.csv file, it will also generate a report_per_class.csv
+    # table in the corresponding folder. 
+  ```
+
+**Note**: this evaluation toolkits might take a long time to run as calculing the group entropy may take long. 
 
 ### Model Inference/Prediction 
 
