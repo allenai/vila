@@ -15,6 +15,7 @@ from sklearn.metrics import precision_recall_fscore_support
 from datasets import ClassLabel, load_dataset, load_metric
 
 from utils import *
+from dataset_configs import *
 
 tqdm.pandas()  # enable progress_apply
 
@@ -630,3 +631,39 @@ class CombinedReport:
         )
 
         return cls(records, predictions)
+
+
+if __name__ == "__main__":
+    
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--dataset_name', type=str, help='The name of the used dataset')
+    parser.add_argument('--base_path', default="../checkpoints", help='The checkpoint base path')
+    parser.add_argument('--experiment_name', type=str, help='The name of the experiment.')
+    parser.add_argument('--store_per_class', action='store_true', help='Store per class accuracy scores.')
+
+    args = parser.parse_args()
+    
+    experiment_folder = os.path.join(args.base_path, args.dataset_name.lower(), args.experiment_name)
+    
+    assert os.path.isdir(experiment_folder), f"{experiment_folder} does not exist"
+
+    dataset = instiantiate_dataset(args.dataset_name)
+    test_df = load_dataset_and_flatten(dataset.test_file)
+
+    all_labels = load_json(dataset.label_map_file)
+    label2id = {val:int(key) for key, val in all_labels.items()}
+    id2label = {int(key):val for key, val in all_labels.items()}
+    dataset_labels = list(id2label.keys())
+
+    print(f"Loading from {experiment_folder}")
+    report = CombinedReport.from_experiment_folder(
+        experiment_folder,
+        test_df=test_df,
+        label_space=dataset_labels,
+    )
+
+    report_folder = os.path.join(experiment_folder, "reports")
+    os.makedirs(report_folder, exist_ok=True)
+    report.report().to_csv(os.path.join(report_folder, "report.csv"))
+    if args.store_per_class:
+        report.report_per_category_scores().to_csv(os.path.join(report_folder, "report_per_class.csv"))
