@@ -632,20 +632,10 @@ class CombinedReport:
 
         return cls(records, predictions)
 
-
-if __name__ == "__main__":
-    
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--dataset_name', type=str, help='The name of the used dataset')
-    parser.add_argument('--base_path', default="../checkpoints", help='The checkpoint base path')
-    parser.add_argument('--experiment_name', type=str, help='The name of the experiment.')
-    parser.add_argument('--store_per_class', action='store_true', help='Store per class accuracy scores.')
-
-    args = parser.parse_args()
-    
-    experiment_folder = os.path.join(args.base_path, args.dataset_name.lower(), args.experiment_name)
+def generate_eval_report_for_experiment(experiment_folder):
     
     assert os.path.isdir(experiment_folder), f"{experiment_folder} does not exist"
+    print(f"Working on generating experiment results for {experiment_folder}")
 
     dataset = instiantiate_dataset(args.dataset_name)
     test_df = load_dataset_and_flatten(dataset.test_file)
@@ -667,3 +657,27 @@ if __name__ == "__main__":
     report.report().to_csv(os.path.join(report_folder, "report.csv"))
     if args.store_per_class:
         report.report_per_category_scores().to_csv(os.path.join(report_folder, "report_per_class.csv"))
+
+if __name__ == "__main__":
+    
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--dataset_name', type=str, help='The name of the used dataset')
+    parser.add_argument('--base_path', default="../checkpoints", help='The checkpoint base path')
+    parser.add_argument('--experiment_name', default=None, type=str, help='The name of the experiment.')
+    parser.add_argument('--store_per_class', action='store_true', help='Store per class accuracy scores.')
+
+    args = parser.parse_args()
+    
+    dataset_path = os.path.join(args.base_path, args.dataset_name.lower())
+
+    if args.experiment_name is not None:
+        experiment_folder = os.path.join(dataset_path, args.experiment_name)
+        generate_eval_report_for_experiment(experiment_folder)
+    else:
+        print(f"No experiment_name is specified, iterating all the experiment folders in {args.base_path=}")
+        for experiment_name in os.listdir(dataset_path):
+            if not experiment_name.startswith("."):
+                experiment_folder = os.path.join(dataset_path, experiment_name)
+                generate_eval_report_for_experiment(experiment_folder)
+    
+                
