@@ -8,8 +8,9 @@ import pandas as pd
 import pdfplumber
 import layoutparser as lp
 
-from .base import BasePDFTokenExtractor
 from ..utils import union_lp_box
+from .base import BasePDFTokenExtractor
+from .datamodel import PageData
 
 
 @dataclass
@@ -77,28 +78,46 @@ class PDFPlumberPageData:
     def get_lines(self, x_tolerance=10, y_tolerance=10) -> lp.Layout:
         """Get the text line bounding boxes from the current page."""
 
-        return [
-            union_lp_box(line).set(id=idx)
-            for idx, line in enumerate(self.get_text_segments(x_tolerance, y_tolerance))
-        ]
+        lines = []
+        for idx, line_tokens in enumerate(
+            self.get_text_segments(x_tolerance, y_tolerance)
+        ):
+            line = union_lp_box(line_tokens).set(id=idx)
+            lines.append(line)
+            for t in line_tokens:
+                t.line_id = idx
+
+                if not hasattr(t, "block_id"):
+                    t.block_id = None
+                line.block_id = t.block_id
+
+        return lp.Layout(lines)
+
+    def to_pagedata(self, x_tolerance=10, y_tolerance=10):
+        """Convert the layout to a PageData object."""
+
+        lines = self.get_lines(x_tolerance, y_tolerance)
+
+        return PageData(words=self.tokens, lines=lines, blocks=[])
 
 
 def convert_token_dict_to_layout(tokens):
-    return lp.Layout(
-        [
-            lp.TextBlock(
-                lp.Rectangle(
-                    x_1=token["x"],
-                    y_1=token["y"],
-                    x_2=token["x"] + token["width"],
-                    y_2=token["y"] + token["height"],
-                ),
-                text=token["text"],
-                type=token.get("type"),
-            )
-            for token in tokens
-        ]
-    )
+
+    lp_tokens = []
+    for token in tokens:
+        lp_token = lp.TextBlock(
+            lp.Rectangle(
+                x_1=token["x"],
+                y_1=token["y"],
+                x_2=token["x"] + token["width"],
+                y_2=token["y"] + token["height"],
+            ),
+            text=token["text"],
+        )
+        lp_token.font = token.get("font")
+        lp_tokens.append(lp_token)
+
+    return lp.Layout(lp_tokens)
 
 
 def load_page_data_from_dict(source_data: Dict[str, Any]) -> List[Dict]:
@@ -141,7 +160,7 @@ class PDFPlumberTokenExtractor(BasePDFTokenExtractor):
             width=row["width"],
             y=row["top"],
             height=row["height"],
-            type=row.get("fontname"),
+            font=row.get("fontname"),
         )
 
     def obtain_word_tokens(self, cur_page: pdfplumber.page.Page) -> List[Dict]:
