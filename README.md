@@ -104,7 +104,7 @@ The evaluation toolkit can generate a detailed report for the prediction accurac
   ```bash
     cd tools
     python generate-eval.py --dataset_name grotoap2 --experiment_name baseline
-    # It will create a reports folder in ../checkpoints/grotoap2/baseline and store the 
+    # It will create a _reports folder in ../checkpoints/grotoap2/baseline and store the 
     # scores in the report.csv file. 
   ```
 2. Generate reports for all experiments for a specific dataset
@@ -112,6 +112,7 @@ The evaluation toolkit can generate a detailed report for the prediction accurac
     cd tools
     python generate-eval.py --dataset_name grotoap2
     # It will create reports for all experiments in the ../checkpoints/grotoap2/ folder
+    # Also it will aggregate all the results and save them in ../checkpoints/grotoap2/_reports 
   ```
 3. Generate reports for per-class accuracy
   ```bash

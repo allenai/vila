@@ -632,7 +632,7 @@ class CombinedReport:
 
         return cls(records, predictions)
 
-def generate_eval_report_for_experiment(experiment_folder):
+def generate_eval_report_for_experiment(experiment_folder, args):
     
     assert os.path.isdir(experiment_folder), f"{experiment_folder} does not exist"
     print(f"Working on generating experiment results for {experiment_folder}")
@@ -652,11 +652,18 @@ def generate_eval_report_for_experiment(experiment_folder):
         label_space=dataset_labels,
     )
 
-    report_folder = os.path.join(experiment_folder, "reports")
+    report_folder = os.path.join(experiment_folder, args.report_folder_name)
     os.makedirs(report_folder, exist_ok=True)
-    report.report().to_csv(os.path.join(report_folder, "report.csv"))
+    report_df = report.report()
+    report_df.to_csv(os.path.join(report_folder, "report.csv"))
+
     if args.store_per_class:
-        report.report_per_category_scores().to_csv(os.path.join(report_folder, "report_per_class.csv"))
+        report_df_per_cat = report.report_per_category_scores()
+        report_df_per_cat.to_csv(os.path.join(report_folder, "report_per_class.csv"))
+        return report_df, report_df_per_cat
+    
+    return report_df, None
+
 
 if __name__ == "__main__":
     
@@ -666,18 +673,36 @@ if __name__ == "__main__":
     parser.add_argument('--experiment_name', default=None, type=str, help='The name of the experiment.')
     parser.add_argument('--store_per_class', action='store_true', help='Store per class accuracy scores.')
 
+    parser.add_argument('--report_folder_name', default="_reports", help='The name of the folder for saving reports')
+
     args = parser.parse_args()
     
     dataset_path = os.path.join(args.base_path, args.dataset_name.lower())
 
     if args.experiment_name is not None:
         experiment_folder = os.path.join(dataset_path, args.experiment_name)
-        generate_eval_report_for_experiment(experiment_folder)
+        generate_eval_report_for_experiment(experiment_folder, args)
     else:
         print(f"No experiment_name is specified, iterating all the experiment folders in {args.base_path=}")
+        
+        all_report_df = []
+        all_report_df_per_cat = []
+
         for experiment_name in os.listdir(dataset_path):
-            if not experiment_name.startswith("."):
+            
+            if not experiment_name.startswith(".") and experiment_name != args.report_folder_name:
                 experiment_folder = os.path.join(dataset_path, experiment_name)
-                generate_eval_report_for_experiment(experiment_folder)
-    
+                report_df, report_df_per_cat = generate_eval_report_for_experiment(experiment_folder, args)
                 
+                all_report_df.append(report_df)
+                all_report_df_per_cat.append(report_df_per_cat)
+        
+        all_report_df = pd.concat(all_report_df)
+        
+        report_folder = os.path.join(dataset_path, args.report_folder_name)
+        os.makedirs(report_folder, exist_ok=True)
+        all_report_df.to_csv(os.path.join(report_folder, "report.csv"))
+
+        if args.store_per_class:
+            all_report_df_per_cat = pd.concat(all_report_df_per_cat)
+            all_report_df_per_cat.to_csv(os.path.join(report_folder, "report_per_class.csv"))
