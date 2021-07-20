@@ -9,6 +9,7 @@ import pdfplumber
 import layoutparser as lp
 
 from .base import BasePDFTokenExtractor
+from ..utils import union_lp_box
 
 
 @dataclass
@@ -72,6 +73,14 @@ class PDFPlumberPageData:
                 for ele in self.get_text_segments(x_tolerance, y_tolerance)
             ]
         )
+
+    def get_lines(self, x_tolerance=10, y_tolerance=10) -> lp.Layout:
+        """Get the text line bounding boxes from the current page."""
+
+        return [
+            union_lp_box(line).set(id=idx)
+            for idx, line in enumerate(self.get_text_segments(x_tolerance, y_tolerance))
+        ]
 
 
 def convert_token_dict_to_layout(tokens):
