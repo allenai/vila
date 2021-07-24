@@ -1,9 +1,12 @@
 from typing import List, Union, Dict, Any, Tuple
 from dataclasses import dataclass
+from collections import defaultdict
 
 import layoutparser as lp
+from numpy.core.shape_base import block
 import pandas as pd
 
+from ..utils import union_lp_box
 
 @dataclass
 class PageData:
@@ -145,9 +148,11 @@ class PageData:
         return row_item
 
     @classmethod
-    def from_dict(cls, json_data):
+    def from_dict(cls, json_data, default_line_id=-1, default_block_id=-1):
         
         words = []
+        lines = defaultdict(list)
+        blocks = defaultdict(list)
 
         for idx, (word, bbox, line_id, block_id, label) in enumerate(zip(
             json_data["words"], json_data["bbox"], json_data["line_ids"], json_data["block_ids"], json_data["labels"]
@@ -161,6 +166,22 @@ class PageData:
             word.line_id=line_id
             word.block_id=block_id
 
+            lines[line_id].append(word)
+            blocks[block_id].append(word)
+
             words.append(word)
-        
-        return cls(blocks=[], lines=[], words=words)
+
+        lines.pop(default_line_id, None)
+        blocks.pop(default_block_id, None)
+
+        lines = [
+            union_lp_box(contained_words).set(id=id)
+            for id, contained_words in sorted(lines.items())
+        ]
+
+        blocks = [
+            union_lp_box(contained_words).set(id=id)
+            for id, contained_words in sorted(blocks.items())
+        ]
+
+        return cls(blocks=blocks, lines=lines, words=words)
