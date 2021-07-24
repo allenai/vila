@@ -143,3 +143,24 @@ class PageData:
             row_item["labels"] = df["category"].tolist()
 
         return row_item
+
+    @classmethod
+    def from_dict(cls, json_data):
+        
+        words = []
+
+        for idx, (word, bbox, line_id, block_id, label) in enumerate(zip(
+            json_data["words"], json_data["bbox"], json_data["line_ids"], json_data["block_ids"], json_data["labels"]
+        )):
+            word = lp.TextBlock(
+                id=idx,
+                block=lp.Rectangle(bbox[0], bbox[1], bbox[2], bbox[3]),
+                text=word,
+                type=label,
+            )
+            word.line_id=line_id
+            word.block_id=block_id
+
+            words.append(word)
+        
+        return cls(blocks=[], lines=[], words=words)
