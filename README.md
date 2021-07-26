@@ -126,6 +126,28 @@ The evaluation toolkit can generate a detailed report for the prediction accurac
 
 ### Model Inference/Prediction 
 
+Please refer to the example code below
+
+```python
+import layoutparser as lp # For visualization 
+
+from vila.pdftools.pdf_extractor import PDFExtractor
+from vila.predictors import SimplePDFPredictor
+# Choose from SimplePDFPredictor,
+# LayoutIndicatorPDFPredictor, 
+# and HierarchicalPDFDataPreprocessor
+
+pdf_extractor = PDFExtractor("pdfplumber")
+page_tokens, page_images = pdf_extractor.load_tokens_and_image(f"path-to-your.pdf")
+
+pdf_predictor = SimplePDFPredictor.from_pretrained("path-to-the-trained-weights")
+
+for idx, page_token in enumerate(page_tokens):
+    pdf_data = page_token.to_pagedata().to_dict()
+    predicted_tokens = pdf_predictor.predict(pdf_data)
+    lp.draw_box(page_images[idx], predicted_tokens)
+```
+
 ## Citation
 
 ```
