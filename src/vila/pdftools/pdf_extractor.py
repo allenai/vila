@@ -18,12 +18,12 @@ class PDFExtractor:
             )
 
     def load_tokens_and_image(
-        self, pdf_path: str, resize_image=False, resize_layout=False, **kwargs
+        self, pdf_path: str, resize_image=False, resize_layout=False, dpi=72, **kwargs
     ):
 
         pdf_tokens = self.pdf_extractor(pdf_path, **kwargs)
 
-        page_images = pdf2image.convert_from_path(pdf_path, dpi=72)
+        page_images = pdf2image.convert_from_path(pdf_path, dpi=dpi)
 
         assert not (
             resize_image and resize_layout
