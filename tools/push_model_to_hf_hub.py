@@ -1,3 +1,6 @@
+# This script needs to be run with transformer>=4.7 as we need 
+# to call the `push_to_hub` API. 
+
 import json
 import sys
 

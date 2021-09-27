@@ -24,7 +24,54 @@ We tested the code and trained the models using `Python≥3.6`, `PyTorch==1.7.1`
 
 ## Usage 
 
-### Directory Structure 
+### Training 
+
+### Run Inference/Prediction 
+
+#### Model Weights
+
+We've uploaded a collection of pre-trained models to HuggingFace's model Hub:
+
+| Weights Name                                    | Model    | Dataset  | F1    | Latency |
+| ----------------------------------------------- | -------- | -------- | ----- | ------- |
+| layoutlm-base-uncased                           | baseline | docbank  | 91.06 | 52.56   |
+| allenai/ivila-block-layoutlm-finetuned-docbank  | ivila    | docbank  | 92.00 | -       |
+| allenai/hvila-block-layoutlm-finetuned-docbank  | hvila    | docbank  | 87.78 | 16.37   |
+| allenai/hvila-row-layoutlm-finetuned-docbank    | hvila    | docbank  | 91.27 | 28.07   |
+| layoutlm-base-uncased                           | baseline | grotoap2 | 92.34 | 52.56   |
+| allenai/ivila-block-layoutlm-finetuned-grotoap2 | ivila    | grotoap2 | 93.38 | -       |
+| allenai/hvila-block-layoutlm-finetuned-grotoap2 | hvila    | grotoap2 | 92.37 | 16.37   |
+| allenai/hvila-row-layoutlm-finetuned-grotoap2   | hvila    | grotoap2 | 91.65 | 28.07   |
+
+#### MMDA VILA Example
+
+[MMDA](https://github.com/allenai/mmda/) is our newly designed toolkit that provides flexible supports for PDF document analysis. Please check the VILA predictor example [here](https://github.com/allenai/mmda/tree/main/examples/vila_for_scidoc_parsing) for more details.  
+
+#### `PDFPredictor`s in VILA
+
+In VILA repo, we also implemented a set of `PDFPredictor`s. Please refer to the example code below:
+
+```python
+import layoutparser as lp # For visualization 
+
+from vila.pdftools.pdf_extractor import PDFExtractor
+from vila.predictors import SimplePDFPredictor
+# Choose from SimplePDFPredictor,
+# LayoutIndicatorPDFPredictor, 
+# and HierarchicalPDFDataPreprocessor
+
+pdf_extractor = PDFExtractor("pdfplumber")
+page_tokens, page_images = pdf_extractor.load_tokens_and_image(f"path-to-your.pdf")
+
+pdf_predictor = SimplePDFPredictor.from_pretrained("path-to-the-trained-weights")
+
+for idx, page_token in enumerate(page_tokens):
+    pdf_data = page_token.to_pagedata().to_dict()
+    predicted_tokens = pdf_predictor.predict(pdf_data)
+    lp.draw_box(page_images[idx], predicted_tokens)
+```
+
+#### Directory Structure 
 
 ```
 VILA
@@ -48,7 +95,7 @@ VILA
 Note:
 - We will provide the download links to the datasets very soon. 
 
-### Training 
+#### Training Scripts
 
 All training scripts are in the `./scripts` folder. 
 
@@ -124,29 +171,10 @@ The evaluation toolkit can generate a detailed report for the prediction accurac
 
 **Note**: this evaluation toolkits might take a long time to run as calculing the group entropy may take long. 
 
-### Model Inference/Prediction 
 
-Please refer to the example code below
+## Note
 
-```python
-import layoutparser as lp # For visualization 
-
-from vila.pdftools.pdf_extractor import PDFExtractor
-from vila.predictors import SimplePDFPredictor
-# Choose from SimplePDFPredictor,
-# LayoutIndicatorPDFPredictor, 
-# and HierarchicalPDFDataPreprocessor
-
-pdf_extractor = PDFExtractor("pdfplumber")
-page_tokens, page_images = pdf_extractor.load_tokens_and_image(f"path-to-your.pdf")
-
-pdf_predictor = SimplePDFPredictor.from_pretrained("path-to-the-trained-weights")
-
-for idx, page_token in enumerate(page_tokens):
-    pdf_data = page_token.to_pagedata().to_dict()
-    predicted_tokens = pdf_predictor.predict(pdf_data)
-    lp.draw_box(page_images[idx], predicted_tokens)
-```
+In order to support the AutoModel API, we changed the default transformers requirements to `>=4.5` instead of `4.4.2`. If you're working on reproducing the results, you might want to downgrade the transformers version to 4.4.2 to get the matching results. 
 
 ## Citation
 
