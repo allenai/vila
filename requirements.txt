@@ -13,7 +13,7 @@ pysbd
 layoutparser>=0.2
 
 # HF 
-transformers==4.4.2
+transformers>=4.5
 datasets
 
 # For extracting PDF and images from the input
