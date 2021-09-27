@@ -17,7 +17,7 @@ python push_model_to_hf_hub.py \
     --label-path $BASE_PATH/data/docbank/grouped-v6/labels.json \
     --repo-name hvila-block-layoutlm-finetuned-docbank \
     --agg_level "block" \
-    --group_bbox_agg "first" \
+    --group_bbox_agg "first" 
 
 # DocBank HVILA Row Finetuned 
 python push_model_to_hf_hub.py \
@@ -25,12 +25,12 @@ python push_model_to_hf_hub.py \
     --label-path $BASE_PATH/data/docbank/grouped-v6/labels.json \
     --repo-name hvila-row-layoutlm-finetuned-docbank \
     --agg_level "row" \
-    --group_bbox_agg "first" \
+    --group_bbox_agg "first" 
 
 # GROTOAP2 IVILA Block Finetuned 
 python push_model_to_hf_hub.py \
     --model-path $BASE_PATH/checkpoints/grotoap/layout_indicator-BLK-block/microsoft-layoutlm-base-uncased/ \
-    --label-path $BASE_PATH/data/docbank/grouped-v6/labels.json \
+    --label-path $BASE_PATH/data/grotoap2/grouped-v2/labels.json \
     --repo-name ivila-block-layoutlm-finetuned-grotoap2 \
     --agg_level "block" \
     --group_bbox_agg "first" \
@@ -42,7 +42,7 @@ python push_model_to_hf_hub.py \
     --label-path $BASE_PATH/data/grotoap2/grouped-v2/labels.json    \
     --repo-name hvila-block-layoutlm-finetuned-grotoap2 \
     --agg_level "block" \
-    --group_bbox_agg "first" \
+    --group_bbox_agg "first" 
 
 # GROTOAP2 HVILA Row Finetuned 
 python push_model_to_hf_hub.py \
@@ -50,4 +50,4 @@ python push_model_to_hf_hub.py \
     --label-path $BASE_PATH/data/grotoap2/grouped-v2/labels.json    \
     --repo-name hvila-row-layoutlm-finetuned-grotoap2 \
     --agg_level "row" \
-    --group_bbox_agg "first" \
+    --group_bbox_agg "first" 
