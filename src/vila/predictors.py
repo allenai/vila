@@ -1,3 +1,4 @@
+import os
 from typing import List, Union, Dict, Any, Tuple
 from abc import ABC, abstractmethod
 import itertools
@@ -7,10 +8,13 @@ import dataclasses
 
 import torch
 import layoutparser as lp
-from transformers import AutoModelForTokenClassification, AutoTokenizer
 
-from .dataset.preprocessors import instantiate_dataset_preprocessor
+from .dataset.preprocessors import (
+    instantiate_dataset_preprocessor,
+    VILAPreprocessorConfig,
+)
 from .models.hierarchical_model import HierarchicalModelForTokenClassification
+from .automodel import AutoModelForTokenClassification, AutoTokenizer
 
 def columns_used_in_model_inputs(model):
     signature = inspect.signature(model.forward)
@@ -26,14 +30,6 @@ def flatten_line_level_prediction(batched_line_pred, batched_line_word_count):
             final_flattend_pred.append([[pred, label, line_id]] * count)
 
     return list(itertools.chain.from_iterable(final_flattend_pred))
-
-
-@dataclass
-class PreprocessorConfig:
-    agg_level: str = "row"
-    label_all_tokens: bool = False
-    group_bbox_agg: str = "first"
-    added_special_sepration_token: str = "[SEP]"
 
 
 class BasePDFPredictor:
@@ -59,9 +55,8 @@ class BasePDFPredictor:
         tokenizer = AutoTokenizer.from_pretrained(model_path)
 
         if preprocessor is None:
-            preprocessor = cls.initialize_preprocessor(
-                tokenizer, PreprocessorConfig(**preprocessor_config)
-            )
+            preprocessor_config = VILAPreprocessorConfig.from_pretrained(model_path, **preprocessor_config)
+            preprocessor = cls.initialize_preprocessor(tokenizer, preprocessor_config)
 
         return cls(model, preprocessor, device)
 
@@ -143,23 +138,6 @@ class LayoutIndicatorPDFPredictor(SimplePDFPredictor):
 
 class HierarchicalPDFDataPreprocessor(BasePDFPredictor):
     """The PDF predictor used for hierarchical, or HVILA, based models."""
-
-    @classmethod
-    def from_pretrained(
-        cls, model_path, preprocessor=None, device=None, **preprocessor_config
-    ):
-
-        model = HierarchicalModelForTokenClassification.from_pretrained(model_path)
-        tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased") 
-        # A dirty hack right now -- hierarchical model all uses bert-base-uncased tokenizer
-        # TODO: change this behavior in the future
-
-        if preprocessor is None:
-            preprocessor = cls.initialize_preprocessor(
-                tokenizer, PreprocessorConfig(**preprocessor_config)
-            )
-
-        return cls(model, preprocessor, device)
 
     @staticmethod
     def initialize_preprocessor(tokenizer, config):
