@@ -1,3 +1,4 @@
+from .config import VILAPreprocessorConfig
 from .base import SimplePDFDataPreprocessor
 from .grouping import RowGroupingPDFDataPreprocessor, BlockGroupingPDFDataPreprocessor
 from .hierarchical_modeling import (
