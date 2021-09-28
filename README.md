@@ -24,24 +24,22 @@ We tested the code and trained the models using `Python≥3.6`, `PyTorch==1.7.1`
 
 ## Usage 
 
-### Training 
-
 ### Run Inference/Prediction 
 
 #### Model Weights
 
 We've uploaded a collection of pre-trained models to HuggingFace's model Hub:
 
-| Weights Name                                    | Model    | Dataset  | F1    | Latency |
-| ----------------------------------------------- | -------- | -------- | ----- | ------- |
-| layoutlm-base-uncased                           | baseline | docbank  | 91.06 | 52.56   |
-| allenai/ivila-block-layoutlm-finetuned-docbank  | ivila    | docbank  | 92.00 | -       |
-| allenai/hvila-block-layoutlm-finetuned-docbank  | hvila    | docbank  | 87.78 | 16.37   |
-| allenai/hvila-row-layoutlm-finetuned-docbank    | hvila    | docbank  | 91.27 | 28.07   |
-| layoutlm-base-uncased                           | baseline | grotoap2 | 92.34 | 52.56   |
-| allenai/ivila-block-layoutlm-finetuned-grotoap2 | ivila    | grotoap2 | 93.38 | -       |
-| allenai/hvila-block-layoutlm-finetuned-grotoap2 | hvila    | grotoap2 | 92.37 | 16.37   |
-| allenai/hvila-row-layoutlm-finetuned-grotoap2   | hvila    | grotoap2 | 91.65 | 28.07   |
+| Weights Name                                                                                                              | Model    | Dataset  | F1    | Latency |
+| ------------------------------------------------------------------------------------------------------------------------- | -------- | -------- | ----- | ------- |
+| layoutlm-base-uncased                                                                                                     | baseline | docbank  | 91.06 | 52.56   |
+| [allenai/ivila-block-layoutlm-finetuned-docbank](https://huggingface.co/allenai/ivila-block-layoutlm-finetuned-docbank)   | ivila    | docbank  | 92.00 | -       |
+| [allenai/hvila-block-layoutlm-finetuned-docbank](https://huggingface.co/allenai/hvila-block-layoutlm-finetuned-docbank)   | hvila    | docbank  | 87.78 | 16.37   |
+| [allenai/hvila-row-layoutlm-finetuned-docbank](https://huggingface.co/allenai/hvila-row-layoutlm-finetuned-docbank)       | hvila    | docbank  | 91.27 | 28.07   |
+| layoutlm-base-uncased                                                                                                     | baseline | grotoap2 | 92.34 | 52.56   |
+| [allenai/ivila-block-layoutlm-finetuned-grotoap2](https://huggingface.co/allenai/ivila-block-layoutlm-finetuned-grotoap2) | ivila    | grotoap2 | 93.38 | -       |
+| [allenai/hvila-block-layoutlm-finetuned-grotoap2](https://huggingface.co/allenai/hvila-block-layoutlm-finetuned-grotoap2) | hvila    | grotoap2 | 92.37 | 16.37   |
+| [allenai/hvila-row-layoutlm-finetuned-grotoap2](https://huggingface.co/allenai/hvila-row-layoutlm-finetuned-grotoap2)     | hvila    | grotoap2 | 91.65 | 28.07   |
 
 #### MMDA VILA Example
 
@@ -55,7 +53,7 @@ In VILA repo, we also implemented a set of `PDFPredictor`s. Please refer to the 
 import layoutparser as lp # For visualization 
 
 from vila.pdftools.pdf_extractor import PDFExtractor
-from vila.predictors import SimplePDFPredictor
+from vila.predictors import HierarchicalPDFDataPreprocessor
 # Choose from SimplePDFPredictor,
 # LayoutIndicatorPDFPredictor, 
 # and HierarchicalPDFDataPreprocessor
@@ -63,13 +61,21 @@ from vila.predictors import SimplePDFPredictor
 pdf_extractor = PDFExtractor("pdfplumber")
 page_tokens, page_images = pdf_extractor.load_tokens_and_image(f"path-to-your.pdf")
 
-pdf_predictor = SimplePDFPredictor.from_pretrained("path-to-the-trained-weights")
+vision_model = lp.EfficientDetLayoutModel("lp://PubLayNet") 
+pdf_predictor = HierarchicalPDFDataPreprocessor.from_pretrained("allenai/hvila-row-layoutlm-finetuned-docbank")
 
 for idx, page_token in enumerate(page_tokens):
+    blocks = **vision_model**.detect(page_images[idx])
+    page_token.annotate(blocks=blocks)
     pdf_data = page_token.to_pagedata().to_dict()
     predicted_tokens = pdf_predictor.predict(pdf_data)
-    lp.draw_box(page_images[idx], predicted_tokens)
+    lp.draw_box(page_images[idx], predicted_tokens, box_width=0, box_alpha=0.25)
 ```
+
+![](.github/vila-examples.png)
+
+### Training 
+
 
 #### Directory Structure 
 
