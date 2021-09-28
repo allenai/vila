@@ -36,6 +36,7 @@ class BasePDFPredictor:
     def __init__(self, model, preprocessor, device):
         self.model = model
         self.preprocessor = preprocessor
+        self.id2label = self.model.config.id2label
 
         if device is None:
             self.device = model.device
@@ -114,7 +115,7 @@ class SimplePDFPredictor(BasePDFPredictor):
         ]
 
         true_predictions = list(itertools.chain.from_iterable(true_predictions))
-        preds = [ele[0] for ele in true_predictions]
+        preds = [self.id2label.get(ele[0], ele[0]) for ele in true_predictions]
         words = [pdf_data["words"][idx] for idx in model_inputs["encoded_word_ids"]]
         bboxes = [pdf_data["bbox"][idx] for idx in model_inputs["encoded_word_ids"]]
 
@@ -158,7 +159,7 @@ class HierarchicalPDFDataPreprocessor(BasePDFPredictor):
             true_predictions, model_inputs["group_word_count"]
         )
 
-        preds = [ele[0] for ele in flatten_predictions]
+        preds = [self.id2label.get(ele[0], ele[0]) for ele in flatten_predictions]
         words = pdf_data["words"]
         bboxes = pdf_data["bbox"]
 
