@@ -8,7 +8,7 @@ import pandas as pd
 import pdfplumber
 import layoutparser as lp
 
-from ..utils import union_lp_box
+from ..utils import union_lp_box, assign_tokens_to_blocks
 from .base import BasePDFTokenExtractor
 from .datamodel import PageData
 
@@ -20,6 +20,7 @@ class PDFPlumberPageData:
     tokens: lp.Layout
     url_tokens: lp.Layout = field(default_factory=list)
     lines: lp.Layout = field(default_factory=list)
+    blocks: lp.Layout = field(default_factory=list)
 
     def get_text_segments(self, x_tolerance=10, y_tolerance=10) -> List[List]:
         """Get text segments from the current page.
@@ -93,12 +94,23 @@ class PDFPlumberPageData:
 
         return lp.Layout(lines)
 
+    def annotate(self, **kwargs):
+
+        for key, blocks in kwargs.items():
+            if key in ["lines", "blocks"]:
+                blocks, tokens = assign_tokens_to_blocks(blocks, self.tokens)
+                setattr(self, key, blocks)
+                self.tokens = tokens
+
     def to_pagedata(self, x_tolerance=10, y_tolerance=10):
         """Convert the layout to a PageData object."""
 
-        lines = self.get_lines(x_tolerance, y_tolerance)
+        if len(self.lines) == 0:
+            lines = self.get_lines(x_tolerance, y_tolerance)
+        else:
+            lines = self.lines
 
-        return PageData(words=self.tokens, lines=lines, blocks=[])
+        return PageData(words=self.tokens, lines=lines, blocks=self.blocks)
 
 
 def convert_token_dict_to_layout(tokens):
@@ -262,7 +274,6 @@ class PDFPlumberTokenExtractor(BasePDFTokenExtractor):
 
             tokens = self.obtain_word_tokens(cur_page)
             url_tokens = self.obtain_page_hyperlinks(cur_page)
-            lines = self.obtain_page_lines(cur_page)
 
             page = dict(
                 page=dict(
@@ -272,7 +283,7 @@ class PDFPlumberTokenExtractor(BasePDFTokenExtractor):
                 ),
                 tokens=tokens,
                 url_tokens=url_tokens,
-                lines=lines,
+                lines=[],
             )
             pages.append(page)
 
