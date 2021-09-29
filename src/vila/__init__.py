@@ -4,7 +4,7 @@ from .automodel import AutoModelForTokenClassification, AutoTokenizer
 from .predictors import (
     SimplePDFPredictor,
     LayoutIndicatorPDFPredictor,
-    HierarchicalPDFDataPreprocessor,
+    HierarchicalPDFPredictor,
 )
 
 __version__ = "0.1.1"

@@ -53,16 +53,16 @@ In VILA repo, we also implemented a set of `PDFPredictor`s. Please refer to the 
 import layoutparser as lp # For visualization 
 
 from vila.pdftools.pdf_extractor import PDFExtractor
-from vila.predictors import HierarchicalPDFDataPreprocessor
+from vila.predictors import HierarchicalPDFPredictor
 # Choose from SimplePDFPredictor,
 # LayoutIndicatorPDFPredictor, 
-# and HierarchicalPDFDataPreprocessor
+# and HierarchicalPDFPredictor
 
 pdf_extractor = PDFExtractor("pdfplumber")
 page_tokens, page_images = pdf_extractor.load_tokens_and_image(f"path-to-your.pdf")
 
 vision_model = lp.EfficientDetLayoutModel("lp://PubLayNet") 
-pdf_predictor = HierarchicalPDFDataPreprocessor.from_pretrained("allenai/hvila-row-layoutlm-finetuned-docbank")
+pdf_predictor = HierarchicalPDFPredictor.from_pretrained("allenai/hvila-row-layoutlm-finetuned-docbank")
 
 for idx, page_token in enumerate(page_tokens):
     blocks = **vision_model**.detect(page_images[idx])
