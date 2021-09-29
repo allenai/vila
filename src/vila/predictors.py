@@ -137,7 +137,7 @@ class LayoutIndicatorPDFPredictor(SimplePDFPredictor):
         return instantiate_dataset_preprocessor("layout_indicator", tokenizer, config)
 
 
-class HierarchicalPDFDataPreprocessor(BasePDFPredictor):
+class HierarchicalPDFDataPredictor(BasePDFPredictor):
     """The PDF predictor used for hierarchical, or HVILA, based models."""
 
     @staticmethod
