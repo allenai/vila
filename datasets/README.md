@@ -9,7 +9,53 @@ We will provide scripts for downloading the source PDF files as well as converti
 
 ## Download & Usage 
 
+### Download to folders
+
+```bash
+cd <vila-root>/datasets
+bash ./download.sh <dataset-name> #grotoap2, docbank, s2-vl or all
+```
+
+### Directly loading from HuggingFace Datasets
+WIP
+
 ## Datasets Statistics
+
+### Overall 
+|                   | GROTOAP2     | DocBank         | S2-VL-v1                       |
+| ----------------- | ------------ | --------------- | ------------------------------ |
+| Train Test Split  | 83k/18k/18k  | 398k/50k/50k    | *                              |
+| Annotation Method | Automatic    | Automatic       | Human Annotation               |
+| Paper Domain      | Life Science | Math/Physics/CS | 19 Domains                     |
+| VILA Structure    | PDF parsing  | Vision model    | Gold Label / Detection methods |
+| # of Categories   | 22           | 12              | 15                             |
+
+### Document Details 
+
+|                           | GROTOAP2 | DocBank | S2-VL-v1* |
+| ------------------------- | -------- | ------- | --------- |
+| **Tokens per Page**       |
+| Average                   | 1203     | 838     | 790       |
+| Std                       | 591      | 503     | 453       |
+| 95th Percentile           | 2307     | 1553    | 1591      |
+| **Text Lines per Page**   |
+| Average                   | 90       | 60      | 64        |
+| Std                       | 51       | 34      | 54        |
+| 95th Percentile           | 171      | 125     | 154       |
+| **Text Blocks per Page**  |
+| Average                   | 12       | 15      | 22        |
+| Std                       | 16       | 8       | 36        |
+| 95th Percentile           | 37       | 30      | 68        |
+| **Tokens per Text Line**  |
+| Average                   | 17       | 16      | 14        |
+| Std                       | 12       | 43      | 10        |
+| 95th Percentile           | 38       | 38      | 30        |
+| **Tokens per Text Block** |
+| Average                   | 90       | 57      | 48        |
+| Std                       | 184      | 138     | 121       |
+| 95th Percentile           | 431      | 210     | 249       |
+
+* This is calculated based on "old" data and should be updated. 
 
 ## Details about the VILA-enhanced DocBank dataset
 
@@ -19,10 +65,12 @@ We will provide scripts for downloading the source PDF files as well as converti
     - Paper: https://www.dlib.org/dlib/november14/tkaczyk/11tkaczyk.html
     - Original download link: http://cermine.ceon.pl/grotoap2/
     - Licence: Open Access license
+
 2. The Original DocBank Dataset: 
     - Paper: https://arxiv.org/pdf/2006.01038.pdf
     - Original download link: https://github.com/doc-analysis/DocBank
     - Licence: Apache-2.0
+
 ## Citation 
 
 ```
