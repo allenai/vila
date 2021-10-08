@@ -19,14 +19,39 @@ bash ./download.sh <dataset-name> #grotoap2, docbank, s2-vl or all
 ### Directly loading from HuggingFace Datasets
 WIP
 
-## Datasets Statistics
+## Datasets Details 
 
-### Overall 
+### The S2-VL dataset
+
+Due to copyright constraints, we could not directly release the S2-VL dataset and the accompanying PDFs: we provide the scripts to download the paper PDFs from the source and convert them to the format for experiments. 
+
+We create two subset of the S2-VL datasets based on different sampling schemas. 
+S2-VL-`alpha` is sampled at paper level -- we originally selected 87 papers from 19 different scientific disciplines, and asked annotators to annotate the document content regions for all pages of these papers. 
+However, due to copyright issues, only 65 papers from 18 domains (excluding the Business domain) contain public links while we could not release the rest 22 papers. 
+
+As for S2-VL-`beta`, it is created via sampling individual pages. The detailed process is listed as follows:
+- we firstly sampled 988 papers from 19 scientific disciplines (52 papers each), and sampled 2290 pages in total for all the papers. 
+- we asked annotators to only label pages with special categories (see list below), and remove the papers that contain only ordinary content objects (e.g., paragraph regions). By doing so, we aim to greedy sample pages of different content types or layouts to improve the diversity and variability of the curated dataset. It resulted in a total of 1187 pages from 294 different papers (from 19 different domains). 
+
+Please find a detailed description of the labeling schemas and categories in the following documents:
+- [Labeling Instruction](https://docs.google.com/document/d/1DsIDKNEi8GBxrqQuYRy86lCKhksgvyRaGhXPCheGgG0/edit?usp=sharing)
+- [S2-VL Category Definition](https://docs.google.com/document/d/1frGmzYOHnVRWAwTOuuPfc3KVAwu-XKdkFSbpLfy78RI/edit?usp=sharing)
+  - We labeled both layout and semantic categories in S2-VL (see the document above), but only the 16 Layout categories will be used in this evaluation benchmark. 
+- [Special Categories in S2-VL-`beta`](https://docs.google.com/document/d/1M_a0wpDBbqFnNE7H1r8YXrsK96bMA9VR7Ro4G0lJepI/edit?usp=sharing)
+- [The 19 Scientific Disciplines](https://docs.google.com/document/d/1ytJkYhswp4Wlx8tT1iRe-jdjx5A-nqisvUikgmqSQKc/edit?usp=sharing)
+
+### The VILA-enhanced DocBank Dataset
+
+### The GROTOAP2 Dataset
+
+## Dataset Statistics 
+
+### Overall Statistics of the Datasets
 |                   | GROTOAP2     | DocBank         | S2-VL-v1                       |
 | ----------------- | ------------ | --------------- | ------------------------------ |
 | Train Test Split  | 83k/18k/18k  | 398k/50k/50k    | *                              |
 | Annotation Method | Automatic    | Automatic       | Human Annotation               |
-| Paper Domain      | Life Science | Math/Physics/CS | 19 Domains                     |
+| Paper Domain      | Life Science | Math/Physics/CS | 19 Disciplines                 |
 | VILA Structure    | PDF parsing  | Vision model    | Gold Label / Detection methods |
 | # of Categories   | 22           | 12              | 15                             |
 
@@ -57,7 +82,6 @@ WIP
 
 * This is calculated based on "old" data and should be updated. 
 
-## Details about the VILA-enhanced DocBank dataset
 
 ## Reference 
 
