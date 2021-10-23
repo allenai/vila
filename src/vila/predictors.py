@@ -74,7 +74,7 @@ class BasePDFPredictor:
         return self.postprocess_model_outputs(pdf_data, model_inputs, model_predictions)
 
     def get_category_prediction(self, model_outputs):
-        predictions = model_outputs.logits.argmax(dim=-1).cpu().numpy()
+        predictions = model_outputs.logits.argmax(dim=-1).cpu().detach().numpy()
         return predictions
 
     def preprocess_pdf_data(self, pdf_data):
