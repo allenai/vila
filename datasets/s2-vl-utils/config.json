@@ -1,0 +1,21 @@
+{
+    "selected_categories": [
+        "Title",
+        "Author",
+        "Abstract",
+        "Keywords",
+        "Section",
+        "Paragraph",
+        "List",
+        "Bibliography",
+        "Equation",
+        "Algorithm",
+        "Figure",
+        "Table",
+        "Caption",
+        "Header",
+        "Footer",
+        "Footnote"
+    ],
+    "default_category": "Paragraph"
+}
