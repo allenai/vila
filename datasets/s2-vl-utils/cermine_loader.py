@@ -400,11 +400,11 @@ def process_cermine_annotation(sha, pdf_path, token_path):
         len(xml_data) == 1 and len(sha.split("-")) == 2
     ):  # it is a single page pdf for an individual page
         xml_data[0].to_dataframe().to_csv(f"{token_path}/{sha}.csv", index=None)
-
-    for page_id in range(len(xml_data)):
-        xml_data[page_id].to_dataframe().to_csv(
-            f"{token_path}/{sha}-{page_id:02d}.csv", index=None
-        )
+    else:
+        for page_id in range(len(xml_data)):
+            xml_data[page_id].to_dataframe().to_csv(
+                f"{token_path}/{sha}-{page_id:02d}.csv", index=None
+            )
 
 def get_file_sha(filename):
     return filename.split("/")[-1].split(".")[0]
