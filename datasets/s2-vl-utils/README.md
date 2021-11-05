@@ -55,7 +55,7 @@ python condense_dataset.py \
     --cermine-pdf-dir 'sources/s2-vl-ver1/pdfs' \
     --cermine-csv-dir 'sources/s2-vl-ver1/tokens' \
     --vision-csv-dir 'sources/s2-vl-ver1/condensed' \
-    --export-folder 'export/s2-vl-ver1' \  
+    --export-folder 'export/s2-vl-ver1' \
     --config './config.json' 
 ```
 

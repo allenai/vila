@@ -54,13 +54,38 @@ class RawAnnotation:
     def load_annotation_for_sha(self, sha):
 
         all_page_annotations = {}
-        for filename in glob(f"{self.annotation_dir}/{sha}-*.json"):
-            page_id = int(filename.replace(f"{self.annotation_dir}/{sha}-", "").replace(".json",""))
-            res = self.load_page_data_from_json(filename)
-            if res is not None:
-                all_page_annotations[page_id] = res
+        
+        if len(glob(f"{self.annotation_dir}/{sha}-*.json"))>0:
+            # Load annotation for sha-pageid.json like files 
+            for filename in glob(f"{self.annotation_dir}/{sha}-*.json"):
+                page_id = int(filename.replace(f"{self.annotation_dir}/{sha}-", "").replace(".json",""))
+                res = self.load_page_data_from_json(filename)
+                if res is not None:
+                    all_page_annotations[page_id] = res
+        else:
+            # load annotations for sha.json like files 
+            for filename in glob(f"{self.annotation_dir}/{sha}.json"):
+                all_page_annotations = self.load_all_page_data_from_json(filename)
 
         return all_page_annotations
+
+    def load_all_page_data_from_json(self, filename):
+        raw = load_json(filename)
+        results_by_page = defaultdict(list)
+        for ele in raw["annotations"]:
+
+            results_by_page[ele["page"]].append(
+                lp.TextBlock(
+                    lp.Rectangle(
+                        ele["bounds"]["left"],
+                        ele["bounds"]["top"],
+                        ele["bounds"]["right"],
+                        ele["bounds"]["bottom"],
+                    ),
+                    type=ele["label"]["text"],
+                )
+            )
+        return results_by_page
 
     def load_page_data_from_json(self, filename):
         raw = load_json(filename)
