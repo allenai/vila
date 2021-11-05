@@ -612,36 +612,36 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "--annotation_folder", type=str, help="The path to the annotation folder"
+        "--annotation-folder", type=str, help="The path to the annotation folder"
     )
     parser.add_argument(
-        "--annotation_table", type=str, help="The table with sha-annotator name"
+        "--annotation-table", type=str, help="The table with sha-annotator name"
     )
     parser.add_argument(
-        "--cermine_pdf_dir",
+        "--cermine-pdf-dir",
         type=str,
         help="The path to the folder containing the PDF and CERMINED results",
     )
     parser.add_argument(
-        "--cermine_csv_dir",
+        "--cermine-csv-dir",
         type=str,
         help="The path to the folder with CERMINED results stored in csv",
     )
     parser.add_argument(
-        "--vision_csv_dir",
+        "--vision-csv-dir",
         type=str,
         help="The path to the folder with VISION Model results stored in csv",
     )
     parser.add_argument(
-        "--export_folder", type=str, help="The folder for storing the data"
+        "--export-folder", type=str, help="The folder for storing the data"
     )
     parser.add_argument("--config", type=str, help="The path to the config file")
 
-    parser.add_argument("--use_gt_block", action="store_true")
-    parser.add_argument("--use_vision_box", action="store_true")
-    parser.add_argument("--use_vision_line", action="store_true")
-    parser.add_argument("--few_shot_mutual_test_set", action="store_true")
-    parser.add_argument("--few_shot_cv", action="store_true")
+    parser.add_argument("--use-gt-block", action="store_true")
+    parser.add_argument("--use-vision-box", action="store_true")
+    parser.add_argument("--use-vision-line", action="store_true")
+    parser.add_argument("--few-shot-mutual-test-set", action="store_true")
+    parser.add_argument("--few-shot-cv", action="store_true")
 
     args = parser.parse_args()
 

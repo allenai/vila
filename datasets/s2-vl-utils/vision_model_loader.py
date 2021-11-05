@@ -175,7 +175,7 @@ def textblock_detection(base_path):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--base_path", type=str, default="sources")
+    parser.add_argument("--base-path", type=str, help="The path to the source files of a dataset, e.g., sources/s2-vl-ver1")
     args = parser.parse_args()
 
     os.makedirs(f"{args.base_path}/blocks", exist_ok=True)

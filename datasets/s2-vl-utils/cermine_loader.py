@@ -414,8 +414,8 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--base_path", type=str, default="sources")
-    parser.add_argument("--cermine_path", type=str)
+    parser.add_argument("--base-path", type=str, help="The path to the source files of a dataset, e.g., sources/s2-vl-ver1")
+    parser.add_argument("--cermine-path", type=str)
     parser.add_argument("--njobs", type=int, default=2)
     args = parser.parse_args()
 
