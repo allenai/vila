@@ -1,30 +1,43 @@
 # Recreating the S2-VL Dataset 
 
 - [Recreating the S2-VL Dataset](#recreating-the-s2-vl-dataset)
-  - [STEP0: Download the papers](#step0-download-the-papers)
-  - [STEP1: Parse token data using CERMINE](#step1-parse-token-data-using-cermine)
-  - [STEP2: Run visual layout detectors for getting the text block and line blocks](#step2-run-visual-layout-detectors-for-getting-the-text-block-and-line-blocks)
-  - [STEP3: Assemble the annotations and export the dataset](#step3-assemble-the-annotations-and-export-the-dataset)
+  - [STEP0: Install extra dependencies for creating the dataset](#step0-install-extra-dependencies-for-creating-the-dataset)
+  - [STEP1: Download the papers](#step1-download-the-papers)
+  - [STEP2: Parse token data using CERMINE](#step2-parse-token-data-using-cermine)
+  - [STEP3: Run visual layout detectors for getting the text block and line blocks](#step3-run-visual-layout-detectors-for-getting-the-text-block-and-line-blocks)
+  - [STEP4: Assemble the annotations and export the dataset](#step4-assemble-the-annotations-and-export-the-dataset)
 
-## STEP0: Download the papers 
+## STEP0: Install extra dependencies for creating the dataset 
 
-TBD
+```bash
+cd /datasets/s2-vl-utils
+# activate the corresponding environment 
+pip install -r requirements
+```
 
-## STEP1: Parse token data using CERMINE 
+## STEP1: Download the papers 
+
+```bash
+python download.py --base-path sources/s2-vl-ver1
+```
+This will download the pdf files to `sources/s2-vl-ver1/pdfs`. 
+We'll check and report PDFs that don't have the compatible SHA1 code or cannot be downloaded. 
+Note: when you find incompatible SHAs for one PDF, it doesn't necessarily mean the PDFs are different. 
+
+## STEP2: Parse token data using CERMINE 
 
 1. Download JAVA and CERMINE following instructions in [this repo](https://github.com/CeON/CERMINE#using-cermine) (PS: The easiest approach would be just downloading CERMINE v1.13 from [JFrog](http://maven.ceon.pl/artifactory/webapp/#/artifacts/browse/simple/General/kdd-releases/pl/edu/icm/cermine/cermine-impl). 
 
 
 2. Run CERMINE on the set of papers and parse the token data, and convert the source CERMINE data to the csv format: 
     ```bash
-    cd /datasets/s2-vl-utils
     python cermine_loader.py \
         --base-path sources/s2-vl-ver1 \
         --cermine-path /path/to/cermine-impl-1.13-jar-with-dependencies.jar
     ```
     It will create the token table for each `sha-pid.csv` in the `sources/tokens` folder. 
 
-## STEP2: Run visual layout detectors for getting the text block and line blocks 
+## STEP3: Run visual layout detectors for getting the text block and line blocks 
 
 ```bash
 python vision_model_loader.py --base-path sources
@@ -33,7 +46,7 @@ It will:
 1. run visual layout detection for both text blocks and lines, and save them in the `<pdf-sha>-<page-id>.csv` files in the `sources/blocks` and `sources/lines` folder. 
 2. combine the text block, line, and token information, create a refined version of visual layout detection, and save them in the `<pdf-sha>-<page-id>.csv` files in the `sources/condensed` folder. 
 
-## STEP3: Assemble the annotations and export the dataset 
+## STEP4: Assemble the annotations and export the dataset 
 
 ```bash
 python condense_dataset.py \
