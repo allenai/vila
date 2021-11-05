@@ -44,10 +44,11 @@ Please find a detailed description of the labeling schemas and categories in the
 
 ### The GROTOAP2 Dataset
 
-## Dataset Statistics 
+## Dataset Details 
 
-### Overall Statistics of the Datasets
-|                   | GROTOAP2     | DocBank         | S2-VL-v1                       |
+### Statistics of the Datasets
+
+|                   | GROTOAP2     | DocBank         | S2-VL-ver1                       |
 | ----------------- | ------------ | --------------- | ------------------------------ |
 | Train Test Split  | 83k/18k/18k  | 398k/50k/50k    | *                              |
 | Annotation Method | Automatic    | Automatic       | Human Annotation               |
@@ -55,9 +56,7 @@ Please find a detailed description of the labeling schemas and categories in the
 | VILA Structure    | PDF parsing  | Vision model    | Gold Label / Detection methods |
 | # of Categories   | 22           | 12              | 15                             |
 
-### Document Details 
-
-|                           | GROTOAP2 | DocBank | S2-VL-v1* |
+|                           | GROTOAP2 | DocBank | S2-VL-ver1* |
 | ------------------------- | -------- | ------- | --------- |
 | **Tokens per Page**       |
 | Average                   | 1203     | 838     | 790       |
@@ -80,8 +79,55 @@ Please find a detailed description of the labeling schemas and categories in the
 | Std                       | 184      | 138     | 121       |
 | 95th Percentile           | 431      | 210     | 249       |
 
-* This is calculated based on "old" data and should be updated. 
+* This is calculated based on the S2-VL-ver1 with all 87 papers.
 
+### File Structures 
+
+1. The organization of the dataset files :
+    ```bash
+    grotoap2 # Docbank is similar 
+    ├─ labels.json       
+    ├─ train-token.json
+    ├─ dev-token.json           
+    ├─ test-token.json           
+    └─ train-test-split.json
+    ```
+2. What's in each file?
+    1. `labels.json`
+        ```json
+        {"0": "Title",
+         "1": "Author",
+         ...
+        }
+        ```
+    2. `train-test-split.json`
+        ```json
+        {
+            "train": [
+                "pdf-file-name", ...
+            ],
+            "test": ["pdf-file-name", ...]
+        }
+        ```
+    3. `train-token.json`, `dev-token.json` or `test-token.json`
+        Please see detailed schema explanation in the [schema-token.json](schema-token.json) file.
+3. Special notes on the folder structure for S2-VL: since the dataset size is small, we use 5-fold cross validation in the paper. The released version has a similar structure: 
+    ```bash
+    s2-vl-ver1
+    ├─ 0  # 5-fold Cross validation                           
+    │  ├─ labels.json               
+    │  ├─ test-token.json           
+    │  ├─ train-test-split.json     
+    │  └─ train-token.json          
+    ├─ 1  # fold-1, have the same files as other folds                         
+    │  ├─ labels.json               
+    │  ├─ test-token.json           
+    │  ├─ train-test-split.json     
+    │  └─ train-token.json          
+    ├─ 2                            
+    ├─ 3                            
+    └─ 4
+    ```
 
 ## Reference 
 
