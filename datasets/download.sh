@@ -1,37 +1,40 @@
 #!/bin/bash
 
 dataset_name="$1"
+base_save_path="../data"
+mkdir -p $base_save_path
 
-GROTOAP2_BASELINK="https://ai2-s2-research.s3.us-west-2.amazonaws.com/scienceparseplus/datasets/grotoap2/grouped-v2"
-DOCBANK_BASELINK="https://ai2-s2-research.s3.us-west-2.amazonaws.com/scienceparseplus/datasets/docbank/grouped-v6"
+S3_BASE_LINK="https://ai2-s2-research.s3.us-west-2.amazonaws.com/s2-vlue"
+GROTOAP2_S3_NAME="grotoap2.zip"
+DOCBANK_S3_NAME="docbank.zip"
+S2_VL_VER1_S3_NAME="s2-vl-ver1-public.zip"
 
 download_complied_dataset () {
     target_path="$1"
-    base_link="$2"
-    mkdir -p $target_path
-    for file in "dev-token.json" "train-token.json" "test-token.json" "train-test-split.json" "labels.json"
-    do
-        wget $base_link/$file -O $target_path/$file
-    done
+    s3_name="$2"
+    wget $S3_BASE_LINK/$s3_name -O $base_save_path/$s3_name
+    unzip $base_save_path/$s3_name -d $base_save_path/$target_path  
+    rm $base_save_path/$s3_name
 }
 
 case $dataset_name in
 
   grotoap2)
-    download_complied_dataset "../data/grotoap2" $GROTOAP2_BASELINK
+    download_complied_dataset "grotoap2" $GROTOAP2_S3_NAME
     ;;
 
   docbank)
-    download_complied_dataset "../data/docbank" $DOCBANK_BASELINK
+    download_complied_dataset "docbank" $DOCBANK_S3_NAME
     ;;
 
   s2-vl)
-    echo "WIP"
+    download_complied_dataset "s2-vl-ver1" $S2_VL_VER1_S3_NAME
     ;;
 
   all)
-    download_complied_dataset "../data/grotoap2" $GROTOAP2_BASELINK
-    download_complied_dataset "../data/docbank" $DOCBANK_BASELINK
+    download_complied_dataset "grotoap2" $GROTOAP2_S3_NAME
+    download_complied_dataset "docbank" $DOCBANK_S3_NAME
+    download_complied_dataset "s2-vl-ver1" $S2_VL_VER1_S3_NAME
     ;;
 
   *)
