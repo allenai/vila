@@ -1,5 +1,23 @@
 # S2-VLUE 
 
+- [S2-VLUE](#s2-vlue)
+  - [Overview](#overview)
+  - [Download & Usage](#download--usage)
+    - [Download the exported JSON (for training language models)](#download-the-exported-json-for-training-language-models)
+    - [Download the source PDFs or screenshots](#download-the-source-pdfs-or-screenshots)
+  - [Datasets Details](#datasets-details)
+    - [The S2-VL dataset](#the-s2-vl-dataset)
+      - [Recreating the dataset from PDFs and annotations](#recreating-the-dataset-from-pdfs-and-annotations)
+      - [Dataset Curation Details](#dataset-curation-details)
+    - [The VILA-enhanced DocBank Dataset](#the-vila-enhanced-docbank-dataset)
+  - [Dataset Details](#dataset-details)
+    - [Statistics of the Datasets](#statistics-of-the-datasets)
+    - [File Structures](#file-structures)
+  - [Reference](#reference)
+  - [Citation](#citation)
+
+## Overview 
+
 The S2-VLUE, Semantic Scholar **V**isual **L**ayout-enhanced Scientific Text **U**nderstanding **E**valuation (S2-VLUE) Benchmark Suite, is created to evaluate the scientific document understanding and parsing with visual layout information. 
 
 It consists of three datasets, i.e., GROTOAP2, DocBank, and, S2-VL. We modify the existing dataset GROTOAP2[1] and DocBank[2], adding visual layout information and converting them to a format that is compatible with [HuggingFace Datasets](https://huggingface.co/docs/datasets/). 
@@ -9,40 +27,43 @@ We will provide scripts for downloading the source PDF files as well as converti
 
 ## Download & Usage 
 
-### Download to folders
+### Download the exported JSON (for training language models)
 
 ```bash
 cd <vila-root>/datasets
 bash ./download.sh <dataset-name> #grotoap2, docbank, s2-vl or all
 ```
 
-### Directly loading from HuggingFace Datasets
-WIP
+### Download the source PDFs or screenshots 
+
+- GROTOAP2 (downloading paper PDFs)
+  - Please follow the instructions from the [GROTOAP2 Project README](http://cermine.ceon.pl/grotoap2/README).
+- DocBank (downloading paper page screenshots)
+  - Please follow the instructions from the [home page of the DocBank Project](https://doc-analysis.github.io/docbank-page/index.html). 
+- S2-VL (downloading paper PDFs)
+  - Please check the instructions in [s2-vl-utils/README.md](s2-vl-utils/README.md).
 
 ## Datasets Details 
 
 ### The S2-VL dataset
 
-Due to copyright constraints, we could not directly release the S2-VL dataset and the accompanying PDFs: we provide the scripts to download the paper PDFs from the source and convert them to the format for experiments. 
+During the data release process, we unfortunately found that a small portion of PDFs in our dataset (22 out of 87) had additional copyright constraints of which we had been unaware. This meant that we could not directly release the data corresponding to these papers. As such, in the downloaded version, it contains only paper data created from the 65 papers. 
 
-We create two subset of the S2-VL datasets based on different sampling schemas. 
-S2-VL-`alpha` is sampled at paper level -- we originally selected 87 papers from 19 different scientific disciplines, and asked annotators to annotate the document content regions for all pages of these papers. 
-However, due to copyright issues, only 65 papers from 18 domains (excluding the Business domain) contain public links while we could not release the rest 22 papers. 
+If you are interested in the version of the dataset used for training and evaluation in our paper, please fill out this [Google Form](https://forms.gle/M1g9tQLrUtKSsDYA7) to request access. 
 
-As for S2-VL-`beta`, it is created via sampling individual pages. The detailed process is listed as follows:
-- we firstly sampled 988 papers from 19 scientific disciplines (52 papers each), and sampled 2290 pages in total for all the papers. 
-- we asked annotators to only label pages with special categories (see list below), and remove the papers that contain only ordinary content objects (e.g., paragraph regions). By doing so, we aim to greedy sample pages of different content types or layouts to improve the diversity and variability of the curated dataset. It resulted in a total of 1187 pages from 294 different papers (from 19 different domains). 
+#### Recreating the dataset from PDFs and annotations
+
+We also provide the full code to help you recreate the dataset from PDFs and annotation files to the JSON files for training models. Please check the instructions in [s2-vl-utils/README.md](s2-vl-utils/README.md).
+
+#### Dataset Curation Details 
 
 Please find a detailed description of the labeling schemas and categories in the following documents:
 - [Labeling Instruction](https://docs.google.com/document/d/1DsIDKNEi8GBxrqQuYRy86lCKhksgvyRaGhXPCheGgG0/edit?usp=sharing)
 - [S2-VL Category Definition](https://docs.google.com/document/d/1frGmzYOHnVRWAwTOuuPfc3KVAwu-XKdkFSbpLfy78RI/edit?usp=sharing)
   - We labeled both layout and semantic categories in S2-VL (see the document above), but only the 16 Layout categories will be used in this evaluation benchmark. 
-- [Special Categories in S2-VL-`beta`](https://docs.google.com/document/d/1M_a0wpDBbqFnNE7H1r8YXrsK96bMA9VR7Ro4G0lJepI/edit?usp=sharing)
 - [The 19 Scientific Disciplines](https://docs.google.com/document/d/1ytJkYhswp4Wlx8tT1iRe-jdjx5A-nqisvUikgmqSQKc/edit?usp=sharing)
 
 ### The VILA-enhanced DocBank Dataset
-
-### The GROTOAP2 Dataset
 
 ## Dataset Details 
 
