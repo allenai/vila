@@ -23,7 +23,7 @@ The S2-VLUE, Semantic Scholar **V**isual **L**ayout-enhanced Scientific Text **U
 It consists of three datasets, i.e., GROTOAP2, DocBank, and, S2-VL. We modify the existing dataset GROTOAP2[1] and DocBank[2], adding visual layout information and converting them to a format that is compatible with [HuggingFace Datasets](https://huggingface.co/docs/datasets/). 
 The S2-VL dataset is a newly curated dataset that addresses three major drawbacks in existing work: 1) annotation quality, 2) VILA creation, and 3) domain coverage. 
 It contains human annotations for papers from 19 scientific disciplines. 
-We will provide scripts for downloading the source PDF files as well as converting them to a similar HuggingFace Datasets format. 
+We provide scripts for downloading the source PDF files as well as converting them to a similar HuggingFace Datasets format. 
 
 ## Download & Usage 
 
