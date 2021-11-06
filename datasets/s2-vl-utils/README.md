@@ -2,7 +2,7 @@
 
 - [Recreating the S2-VL Dataset](#recreating-the-s2-vl-dataset)
   - [STEP0: Install extra dependencies for creating the dataset](#step0-install-extra-dependencies-for-creating-the-dataset)
-  - [STEP1: Download the papers](#step1-download-the-papers)
+  - [STEP1: Download the papers & annotations](#step1-download-the-papers--annotations)
   - [STEP2: Parse token data using CERMINE](#step2-parse-token-data-using-cermine)
   - [STEP3: Run visual layout detectors for getting the text block and line blocks](#step3-run-visual-layout-detectors-for-getting-the-text-block-and-line-blocks)
   - [STEP4: Assemble the annotations and export the dataset](#step4-assemble-the-annotations-and-export-the-dataset)
@@ -15,12 +15,12 @@ cd /datasets/s2-vl-utils
 pip install -r requirements
 ```
 
-## STEP1: Download the papers 
+## STEP1: Download the papers & annotations 
 
 ```bash
 python download.py --base-path sources/s2-vl-ver1
 ```
-This will download the pdf files to `sources/s2-vl-ver1/pdfs`. 
+This will download the pdf files to `sources/s2-vl-ver1/pdfs` and annotation files to `sources/s2-vl-ver1/annotations`. 
 We'll check and report PDFs that don't have the compatible SHA1 code or cannot be downloaded. 
 Note: when you find incompatible SHAs for one PDF, it doesn't necessarily mean the PDFs are different. 
 

@@ -1,5 +1,7 @@
 from typing import List, Union, Dict, Any, Tuple
 import sys
+import zipfile
+import io
 import os
 import hashlib
 import logging
@@ -20,6 +22,9 @@ logger = logging.getLogger(__name__)
 sha1 = hashlib.sha1()
 headers = {"User-Agent": "Mozilla/5.0"}
 
+ANNOTATION_FILE = {
+    "s2-vl-ver1": "https://ai2-s2-research.s3.us-west-2.amazonaws.com/s2-vlue/s2-vl-ver1-annotations.zip"
+}
 
 def bulk_fetch_pdf_for_urls(
     paper_table: pd.DataFrame,
@@ -238,8 +243,15 @@ if __name__ == "__main__":
     if not os.path.exists(pdf_save_path):
         os.makedirs(pdf_save_path)
 
-    total_mismatch = []
-    total_failure = []
-
     paper_table = pd.read_csv(f"{args.base_path}/{args.annotation_table}")
     fetch_and_process_papers_based_on_urls(paper_table, pdf_save_path)
+
+    print("Downloading the annotation")
+    # hacky code to get the dataset name
+    dataset_name = os.path.basename(args.base_path.strip("/"))
+    annotation_file_url = ANNOTATION_FILE[dataset_name]
+
+    r = requests.get(annotation_file_url)
+
+    with zipfile.ZipFile(file=io.BytesIO(r.content)) as zip_ref:
+        zip_ref.extractall(f"{args.base_path}/annotations")
