@@ -1,0 +1,5 @@
+bs4
+lxml
+PyPDF2
+tqdm
+requests

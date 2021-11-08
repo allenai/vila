@@ -1,0 +1,58 @@
+{
+    "$schema": "",
+    "description": "A condense format for includin all token-level samples in the training dataset",
+    "type": "object",
+    "properties": {
+        "data": {
+            "type": "array",
+            "description": "Each element represents one sample of the model input",
+            "items": {
+                "$ref": "#/$defs/data"
+            }
+        },
+        "labels": {
+            "type": "object",
+            "description": "A mapping from label_id to label_name"
+        },
+        "files": {
+            "type": "array",
+            "description": "A list of strings representing the file names for the i-th object in data",
+            "items": {
+                "type": "string"
+            }
+        },
+    },
+    "$defs": {
+        "data": {
+            "type": "object",
+            "properties": {
+                "words":{
+                    "type": "array",
+                    "description": "A list of individual string words in this page. Empty token (\"\") should be removed."
+                },
+                "bbox": {
+                    "type": "array",
+                    "description": "A list of bounding boxes ([x1, y1, x2, y2]) for each token in the same order as words"                    
+                },
+                "labels": {
+                    "type": "array",
+                    "description": "A list of label_id for each token"
+                },
+                "block_ids": {
+                    "type": "array",
+                    "description": "[Optional] A list of ids for the corresponding block for the each token. Used for constructing block embeddings, etc",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "line_ids": {
+                    "type": "array",
+                    "description": "[Optional] A list of ids for the corresponding line for the each token. Used for constructing line embeddings, etc",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+            }
+        }
+    }
+}
