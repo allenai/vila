@@ -7,12 +7,14 @@
   - [Motivation](#motivation)
   - [Installation](#installation)
   - [Usage](#usage)
+    - [Accessing The S2-VLUE Datasets](#accessing-the-s2-vlue-datasets)
     - [Run Inference/Prediction](#run-inferenceprediction)
       - [Model Weights](#model-weights)
       - [MMDA VILA Example](#mmda-vila-example)
       - [`PDFPredictor`s in VILA](#pdfpredictors-in-vila)
     - [Training](#training)
       - [Directory Structure](#directory-structure)
+      - [Obtaining the Dataset](#obtaining-the-dataset)
       - [Training Scripts](#training-scripts)
     - [Evaluation Toolkit](#evaluation-toolkit)
   - [Note](#note)
@@ -38,6 +40,10 @@ pip install -r requirements.txt # Only install the dependencies
 We tested the code and trained the models using `Python≥3.6`, `PyTorch==1.7.1`, and `transformers==4.4.2`. 
 
 ## Usage 
+
+### Accessing The S2-VLUE Datasets
+
+Please check the detailed instructions in [`datasets/README.md`](datasets/README.md).
 
 ### Run Inference/Prediction 
 
@@ -108,13 +114,14 @@ VILA
 │        └─ microsoft-layoutlm-base-uncased 
 └─ data                                       
    ├─ docbank
-   ├─ ...
-   └─ grotoap2                                 
+   ├─ grotoap2
+   └─ s2-vl
 
 ```
 
-Note:
-- We will provide the download links to the datasets very soon. 
+#### Obtaining the Dataset
+
+We provide the scripts to help you easily download and save the datasets into the aforementioned structure. Please follow the instructions in [`datasets/README.md`](datasets/README.md).
 
 #### Training Scripts
 
