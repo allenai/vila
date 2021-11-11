@@ -60,8 +60,10 @@ We also provide the full code to help you recreate the dataset from PDFs and ann
 Please find a detailed description of the labeling schemas and categories in the following documents:
 - [Labeling Instruction](https://docs.google.com/document/d/1DsIDKNEi8GBxrqQuYRy86lCKhksgvyRaGhXPCheGgG0/edit?usp=sharing)
 - [S2-VL Category Definition](https://docs.google.com/document/d/1frGmzYOHnVRWAwTOuuPfc3KVAwu-XKdkFSbpLfy78RI/edit?usp=sharing)
-  - We labeled both layout and semantic categories in S2-VL (see the document above), but only the 16 Layout categories will be used in this evaluation benchmark. 
+  - We labeled both layout and semantic categories in S2-VL (see the document above), but only the 15* layout categories will be used in this evaluation benchmark. 
 - [The 19 Scientific Disciplines](https://docs.google.com/document/d/1ytJkYhswp4Wlx8tT1iRe-jdjx5A-nqisvUikgmqSQKc/edit?usp=sharing)
+
+*The `algorithm` category is removed due to its small number of instances. 
 
 ### The VILA-enhanced DocBank Dataset
 
