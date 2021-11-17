@@ -40,7 +40,7 @@ Note: when you find incompatible SHAs for one PDF, it doesn't necessarily mean t
 ## STEP3: Run visual layout detectors for getting the text block and line blocks 
 
 ```bash
-python vision_model_loader.py --base-path sources
+python vision_model_loader.py --base-path sources/s2-vl-ver1
 ```
 It will:
 1. run visual layout detection for both text blocks and lines, and save them in the `<pdf-sha>-<page-id>.csv` files in the `sources/blocks` and `sources/lines` folder. 
