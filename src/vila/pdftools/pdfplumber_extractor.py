@@ -112,6 +112,9 @@ class PDFPlumberPageData:
 
         return PageData(words=self.tokens, lines=lines, blocks=self.blocks)
 
+    @property
+    def page_size(self):
+        return (self.width, self.height)
 
 def convert_token_dict_to_layout(tokens):
 
