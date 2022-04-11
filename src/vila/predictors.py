@@ -32,6 +32,24 @@ def flatten_line_level_prediction(batched_line_pred, batched_line_word_count):
     return list(itertools.chain.from_iterable(final_flattend_pred))
 
 
+def _clip_bbox(bbox, max_width=1000, max_height=1000):
+    """
+    A temporary solution to the "large PDF" issue: 
+    Instead of normalizing the bounding box, we clip 
+    it to a maximum width and height. 
+
+    The bbox format in pdf_data is [x1, y1, x2, y2]. 
+    
+    #TODO this should be replaced by a normalization 
+    #     function that is applied to the bounding box
+    """
+    bbox[0] = max(0, bbox[0])
+    bbox[1] = max(0, bbox[1])
+    bbox[2] = min(max_width, bbox[2])
+    bbox[3] = min(max_height, bbox[3])
+    return bbox
+
+
 class BasePDFPredictor:
     def __init__(self, model, preprocessor, device):
         self.model = model
@@ -80,6 +98,8 @@ class BasePDFPredictor:
     def preprocess_pdf_data(self, pdf_data):
         _labels = pdf_data.get("labels")
         pdf_data["labels"] = [0] * len(pdf_data["words"])
+
+        pdf_data["bbox"] = [_clip_bbox(bbox) for bbox in pdf_data["bbox"]] #TODO: Change in the future
 
         sample = self.preprocessor.preprocess_sample(pdf_data)
         pdf_data["labels"] = _labels
