@@ -15,6 +15,8 @@ from .dataset.preprocessors import (
 )
 from .models.hierarchical_model import HierarchicalModelForTokenClassification
 from .automodel import AutoModelForTokenClassification, AutoTokenizer
+from .constants import MODEL_PDF_WIDTH, MODEL_PDF_HEIGHT
+
 
 def columns_used_in_model_inputs(model):
     signature = inspect.signature(model.forward)
@@ -30,6 +32,55 @@ def flatten_line_level_prediction(batched_line_pred, batched_line_word_count):
             final_flattend_pred.append([[pred, label, line_id]] * count)
 
     return list(itertools.chain.from_iterable(final_flattend_pred))
+
+
+def normalize_bbox(
+    bbox,
+    page_width,
+    page_height,
+    target_width=MODEL_PDF_WIDTH,
+    target_height=MODEL_PDF_HEIGHT,
+):
+    """
+    Normalize bounding box to the target size.
+    """
+
+    x1, y1, x2, y2 = bbox
+
+    # Right now only execute this for only "large" PDFs
+    # TODO: Change it for all PDFs
+    if page_width > target_width or page_height > target_height:
+
+        x1 = float(x1) / page_width * target_width
+        x2 = float(x2) / page_width * target_width
+        y1 = float(y1) / page_height * target_height
+        y2 = float(y2) / page_height * target_height
+        
+    return (x1, y1, x2, y2)
+
+
+def unnormalize_bbox(
+    bbox,
+    page_width,
+    page_height,
+    target_width=MODEL_PDF_WIDTH,
+    target_height=MODEL_PDF_HEIGHT,
+):
+    """
+    Unnormalize bounding box to the target size.
+    """
+
+    x1, y1, x2, y2 = bbox
+
+    # Right now only execute this for only "large" PDFs
+    # TODO: Change it for all PDFs
+    if page_width > target_width or page_height > target_height:
+        x1 = float(x1) / target_width * page_width
+        x2 = float(x2) / target_width * page_width
+        y1 = float(y1) / target_height * page_height
+        y2 = float(y2) / target_height * page_height
+
+    return (x1, y1, x2, y2)
 
 
 class BasePDFPredictor:
@@ -56,7 +107,9 @@ class BasePDFPredictor:
         tokenizer = AutoTokenizer.from_pretrained(model_path)
 
         if preprocessor is None:
-            preprocessor_config = VILAPreprocessorConfig.from_pretrained(model_path, **preprocessor_config)
+            preprocessor_config = VILAPreprocessorConfig.from_pretrained(
+                model_path, **preprocessor_config
+            )
             preprocessor = cls.initialize_preprocessor(tokenizer, preprocessor_config)
 
         return cls(model, preprocessor, device)
@@ -66,9 +119,10 @@ class BasePDFPredictor:
     def initialize_preprocessor(tokenizer, config):
         pass
 
-    def predict(self, pdf_data) -> lp.Layout:
+    def predict(self, pdf_data, page_size:Tuple) -> lp.Layout:
+        # page_size is (page_token.width, page_token.height)
 
-        model_inputs = self.preprocess_pdf_data(pdf_data)
+        model_inputs = self.preprocess_pdf_data(pdf_data, page_size)
         model_outputs = self.model(**self.model_input_collator(model_inputs))
         model_predictions = self.get_category_prediction(model_outputs)
         return self.postprocess_model_outputs(pdf_data, model_inputs, model_predictions)
@@ -77,12 +131,20 @@ class BasePDFPredictor:
         predictions = model_outputs.logits.argmax(dim=-1).cpu().detach().numpy()
         return predictions
 
-    def preprocess_pdf_data(self, pdf_data):
+    def preprocess_pdf_data(self, pdf_data, page_size):
         _labels = pdf_data.get("labels")
         pdf_data["labels"] = [0] * len(pdf_data["words"])
+        page_width, page_height = page_size
 
         sample = self.preprocessor.preprocess_sample(pdf_data)
+        sample["bbox"] = [
+            [normalize_bbox(bbox, page_width, page_height) for bbox in batch]
+            for batch in sample["bbox"]
+        ]
+
+        # Change back to the original pdf_data
         pdf_data["labels"] = _labels
+
         return sample
 
     def model_input_collator(self, sample):
