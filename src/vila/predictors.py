@@ -150,7 +150,7 @@ class BasePDFPredictor:
     def model_input_collator(self, sample):
 
         return {
-            key: torch.tensor(val, dtype=torch.int64, device=self.device)
+            key: torch.tensor(val, device=self.device).type(torch.int64) # Make the conversion more robust 
             for key, val in sample.items()
             if key in self._used_cols
         }
