@@ -10,9 +10,9 @@
 ## STEP0: Install extra dependencies for creating the dataset 
 
 ```bash
-cd /datasets/s2-vl-utils
+cd ./datasets/s2-vl-utils
 # activate the corresponding environment 
-pip install -r requirements
+pip install -r requirements.txt
 ```
 
 ## STEP1: Download the papers & annotations 
