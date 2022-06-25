@@ -1,11 +1,12 @@
 import os
-from typing import List, Union, Dict, Any, Tuple
+from typing import List, Optional, Union, Dict, Any, Tuple
 from abc import ABC, abstractmethod
 import itertools
 import inspect
 from dataclasses import dataclass
 import dataclasses
 
+import numpy as np
 import torch
 import layoutparser as lp
 
@@ -55,7 +56,7 @@ def normalize_bbox(
         x2 = float(x2) / page_width * target_width
         y1 = float(y1) / page_height * target_height
         y2 = float(y2) / page_height * target_height
-        
+
     return (x1, y1, x2, y2)
 
 
@@ -119,13 +120,58 @@ class BasePDFPredictor:
     def initialize_preprocessor(tokenizer, config):
         pass
 
-    def predict(self, pdf_data, page_size:Tuple) -> lp.Layout:
+    def predict(self, pdf_data, page_size: Tuple) -> lp.Layout:
         # page_size is (page_token.width, page_token.height)
 
         model_inputs = self.preprocess_pdf_data(pdf_data, page_size)
-        model_outputs = self.model(**self.model_input_collator(model_inputs))
+        model_outputs = self.model(**next(self.model_input_collator(model_inputs)))
         model_predictions = self.get_category_prediction(model_outputs)
         return self.postprocess_model_outputs(pdf_data, model_inputs, model_predictions)
+
+    def predict_pdf(
+        self, pdf_data: List[Dict], batch_size: Optional[int] = None
+    ) -> List[lp.Layout]:
+        """Run Predictions on a whole PDF. The function will do automatic
+        batching across pages such that the memory footprint should be stable.
+
+        Args:
+            page_data (Dict):
+                The page-level data returned by PageData.to_dict()
+            batch_size (Optional[int]):
+                Specifying the maximum number of batches for each model run.
+                By default it will encode all pages.
+        """
+
+        pass  # TODO
+
+    def predict_page(
+        self, page_data: Dict, page_size: Tuple, batch_size: Optional[int] = None
+    ) -> lp.Layout:
+        """Run Predictions on a PDF page.
+
+        Args:
+            page_data (Dict):
+                The page-level data returned by PageData.to_dict()
+            page_size (Tuple):
+                A tuple of (width, height) for this page
+            batch_size (Optional[int]):
+                Specifying the maximum number of batches for each model run.
+                By default it will encode all pages all at once.
+        """
+
+        # page_size is (page_token.width, page_token.height)
+        model_inputs = self.preprocess_pdf_data(page_data, page_size)
+        batched_inputs = self.model_input_collator(model_inputs, batch_size)
+
+        model_predictions = []
+        for batch in batched_inputs:
+            model_outputs = self.model(**batch)
+            model_predictions.append(self.get_category_prediction(model_outputs))
+
+        model_predictions = np.vstack(model_predictions)
+        return self.postprocess_model_outputs(
+            page_data, model_inputs, model_predictions
+        )
 
     def get_category_prediction(self, model_outputs):
         predictions = model_outputs.logits.argmax(dim=-1).cpu().detach().numpy()
@@ -147,13 +193,20 @@ class BasePDFPredictor:
 
         return sample
 
-    def model_input_collator(self, sample):
+    def model_input_collator(self, sample, batch_size=None):
 
-        return {
-            key: torch.tensor(val, device=self.device).type(torch.int64) # Make the conversion more robust 
-            for key, val in sample.items()
-            if key in self._used_cols
-        }
+        n_samples = len(sample[list(sample.keys())[0]])
+        if batch_size is None:
+            batch_size = len(sample[list(sample.keys())[0]])
+
+        for idx in range(0, n_samples, batch_size):
+            yield {
+                key: torch.tensor(val[idx : idx + batch_size], device=self.device).type(
+                    torch.int64
+                )  # Make the conversion more robust
+                for key, val in sample.items()
+                if key in self._used_cols
+            }
 
     @abstractmethod
     def postprocess_model_outputs(self, pdf_data, model_inputs, model_predictions):
