@@ -128,22 +128,6 @@ class BasePDFPredictor:
         model_predictions = self.get_category_prediction(model_outputs)
         return self.postprocess_model_outputs(pdf_data, model_inputs, model_predictions)
 
-    def predict_pdf(
-        self, pdf_data: List[Dict], batch_size: Optional[int] = None
-    ) -> List[lp.Layout]:
-        """Run Predictions on a whole PDF. The function will do automatic
-        batching across pages such that the memory footprint should be stable.
-
-        Args:
-            page_data (Dict):
-                The page-level data returned by PageData.to_dict()
-            batch_size (Optional[int]):
-                Specifying the maximum number of batches for each model run.
-                By default it will encode all pages.
-        """
-
-        pass  # TODO
-
     def predict_page(
         self, page_data: Dict, page_size: Tuple, batch_size: Optional[int] = None
     ) -> lp.Layout:
