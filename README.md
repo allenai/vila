@@ -207,13 +207,14 @@ In order to support the AutoModel API, we changed the default transformers requi
 ## Citation
 
 ```
-@article{Shen2021IncorporatingVL,
-  title={Incorporating Visual Layout Structures for Scientific Text Classification},
-  author={Zejiang Shen and Kyle Lo and Lucy Lu Wang and Bailey Kuehl and Daniel S. Weld and Doug Downey},
-  journal={ArXiv},
-  year={2021},
-  volume={abs/2106.00676},
-  url={https://arxiv.org/abs/2106.00676}
+@article{shen2022vila,
+  title={VILA: Improving structured content extraction from scientific PDFs using visual layout groups},
+  author={Shen, Zejiang and Lo, Kyle and Wang, Lucy Lu and Kuehl, Bailey and Weld, Daniel S and Downey, Doug},
+  journal={Transactions of the Association for Computational Linguistics},
+  volume={10},
+  pages={376--392},
+  year={2022},
+  publisher={MIT Press}
 }
 ```
 
