@@ -53,7 +53,7 @@ class ModelArguments:
     ######### VILA Settings #########
     #################################
 
-    added_special_sepration_token: str = field(
+    added_special_separation_token: str = field(
         default="SEP",
         metadata={
             "help": "The added special token for I-VILA models for separating the blocks/sentences/rows. Can be one of {SEP, BLK}. Default to `SEP`."
@@ -72,13 +72,13 @@ class ModelArguments:
 
     def __post_init__(self):
 
-        assert self.added_special_sepration_token in ["BLK", "SEP"]
+        assert self.added_special_separation_token in ["BLK", "SEP"]
 
-        if self.added_special_sepration_token == "BLK":
-            self.added_special_sepration_token = "[BLK]"
+        if self.added_special_separation_token == "BLK":
+            self.added_special_separation_token = "[BLK]"
 
-        if self.added_special_sepration_token == "SEP":
-            self.added_special_sepration_token = "[SEP]"
+        if self.added_special_separation_token == "SEP":
+            self.added_special_separation_token = "[SEP]"
 
 
 @dataclass

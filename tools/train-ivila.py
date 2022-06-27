@@ -216,8 +216,8 @@ def main():
         use_auth_token=True if model_args.use_auth_token else None,
     )
 
-    if model_args.added_special_sepration_token not in tokenizer.special_tokens_map.values():
-        tokenizer.add_special_tokens({"additional_special_tokens": [model_args.added_special_sepration_token]})
+    if model_args.added_special_separation_token not in tokenizer.special_tokens_map.values():
+        tokenizer.add_special_tokens({"additional_special_tokens": [model_args.added_special_separation_token]})
         model.resize_token_embeddings(len(tokenizer))
         # In a previous version, we try to avoid resizing the token embeddings by directly 
         # modifying the unused tokens in vocab. However, this is not possible as not all tokenizer 
@@ -233,7 +233,7 @@ def main():
         )
 
     logger.info(f"The used agg level is {data_args.agg_level}")
-    data_args.added_special_sepration_token = model_args.added_special_sepration_token
+    data_args.added_special_separation_token = model_args.added_special_separation_token
     preprocessor = instantiate_dataset_preprocessor(
         "layout_indicator", tokenizer, data_args
     )

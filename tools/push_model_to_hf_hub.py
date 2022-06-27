@@ -29,7 +29,7 @@ if __name__ == "__main__":
     parser.add_argument("--agg_level", type=str, default=None, help="desc")
     parser.add_argument("--label_all_tokens", type=str, default=None, help="desc")
     parser.add_argument("--group_bbox_agg", type=str, default=None, help="desc")
-    parser.add_argument("--added_special_sepration_token", type=str, default=None, help="desc")
+    parser.add_argument("--added_special_separation_token", type=str, default=None, help="desc")
     args = parser.parse_args()
 
     print(f"Loading Models from {args.model_path}")
@@ -58,8 +58,8 @@ if __name__ == "__main__":
         vila_preprocessor_config['label_all_tokens'] = args.label_all_tokens
     if args.group_bbox_agg is not None:
         vila_preprocessor_config['group_bbox_agg'] = args.group_bbox_agg
-    if args.added_special_sepration_token is not None:
-        vila_preprocessor_config['added_special_sepration_token'] = args.added_special_sepration_token
+    if args.added_special_separation_token is not None:
+        vila_preprocessor_config['added_special_separation_token'] = args.added_special_separation_token
     
     model_config.vila_preprocessor_config = vila_preprocessor_config
 
