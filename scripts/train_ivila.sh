@@ -71,6 +71,6 @@ python train-ivila.py \
   --per_device_eval_batch_size 40 \
   --warmup_steps 2000 \
   --load_best_model_at_end \
-  --added_special_sepration_token $used_token \
+  --added_special_separation_token $used_token \
   --agg_level $agg_level \
   --fp16 

@@ -54,9 +54,9 @@ class BaseLayoutIndicatorPDFDataPreprocessor(SimplePDFDataPreprocessor):
 
         super().__init__(tokenizer, config, text_column_name, label_column_name)
 
-        self.added_special_sepration_token = config.added_special_sepration_token
-        if self.added_special_sepration_token == "default":
-            self.added_special_sepration_token = tokenizer.special_tokens_map[
+        self.added_special_separation_token = config.added_special_separation_token
+        if self.added_special_separation_token == "default":
+            self.added_special_separation_token = tokenizer.special_tokens_map[
                 "sep_token"
             ]
 
@@ -127,7 +127,7 @@ class BaseLayoutIndicatorPDFDataPreprocessor(SimplePDFDataPreprocessor):
                         self.special_tokens_map[
                             self.tokenizer.special_tokens_map["sep_token"]
                         ],
-                        self.special_tokens_map[self.added_special_sepration_token],
+                        self.special_tokens_map[self.added_special_separation_token],
                     ]:
                         # Because we could possibly insert [SEP] or [BLK] tokens in
                         # this process.
@@ -180,7 +180,7 @@ class BlockLayoutIndicatorPDFDataPreprocessor(BaseLayoutIndicatorPDFDataPreproce
             )
             processed_words.extend(
                 words[pre_index : pre_index + cur_len]
-                + [self.added_special_sepration_token]
+                + [self.added_special_separation_token]
             )
             processed_bbox.extend(
                 bbox[pre_index : pre_index + cur_len]
@@ -226,7 +226,7 @@ class RowLayoutIndicatorPDFDataPreprocessor(BaseLayoutIndicatorPDFDataPreprocess
             )
             processed_words.extend(
                 words[pre_index : pre_index + cur_len]
-                + [self.added_special_sepration_token]
+                + [self.added_special_separation_token]
             )
             processed_bbox.extend(
                 bbox[pre_index : pre_index + cur_len]
@@ -271,7 +271,7 @@ class SentenceLayoutIndicatorPDFDataPreprocessor(
                 range(new_sequence_len, new_sequence_len + end - start)
             )
             processed_words.extend(
-                words[start:end] + [self.added_special_sepration_token]
+                words[start:end] + [self.added_special_separation_token]
             )
             processed_bbox.extend(bbox[start:end] + [union_box(bbox[start:end])])
             processed_labels.extend(labels[start:end] + [-100])

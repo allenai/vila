@@ -5,6 +5,7 @@ from transformers import AutoTokenizer
 
 from vila.constants import *
 from vila.dataset.preprocessors.base import SimplePDFDataPreprocessor
+from vila.dataset.preprocessors.config import VILAPreprocessorConfig
 from vila.dataset.preprocessors.layout_indicator import (
     BlockLayoutIndicatorPDFDataPreprocessor,
     RowLayoutIndicatorPDFDataPreprocessor,
@@ -48,15 +49,11 @@ tokenizer = tokenizer = AutoTokenizer.from_pretrained(
     use_auth_token=None,
 )
 
-
-class Config:
-    pass
-
-
-config = Config()
-config.label_all_tokens = False
-config.added_special_sepration_token = "[SEP]"
-config.group_bbox_agg = "union"
+config = VILAPreprocessorConfig(
+    label_all_tokens = False,
+    added_special_separation_token = "[SEP]",
+    group_bbox_agg = "union"
+)
 
 
 def test_sentence_indicator_processor():

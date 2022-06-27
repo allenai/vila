@@ -9,7 +9,7 @@ python push_model_to_hf_hub.py \
     --repo-name ivila-block-layoutlm-finetuned-docbank \
     --agg_level "block" \
     --group_bbox_agg "first" \
-    --added_special_sepration_token "[BLK]"
+    --added_special_separation_token "[BLK]"
 
 # DocBank HVILA Block Finetuned 
 python push_model_to_hf_hub.py \
@@ -34,7 +34,7 @@ python push_model_to_hf_hub.py \
     --repo-name ivila-block-layoutlm-finetuned-grotoap2 \
     --agg_level "block" \
     --group_bbox_agg "first" \
-    --added_special_sepration_token "[BLK]"
+    --added_special_separation_token "[BLK]"
 
 # GROTOAP2 HVILA Block Finetuned 
 python push_model_to_hf_hub.py \
