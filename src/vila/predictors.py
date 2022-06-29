@@ -25,14 +25,14 @@ def columns_used_in_model_inputs(model):
     return signature_columns
 
 
-def flatten_line_level_prediction(batched_line_pred, batched_line_word_count):
-    final_flattend_pred = []
-    for line_pred, line_word_count in zip(batched_line_pred, batched_line_word_count):
-        assert len(line_pred) == len(line_word_count)
-        for (pred, label), (line_id, count) in zip(line_pred, line_word_count):
-            final_flattend_pred.append([[pred, label, line_id]] * count)
+def flatten_group_level_prediction(batched_group_pred, batched_group_word_count):
+    final_flatten_pred = []
+    for group_pred, group_word_count in zip(batched_group_pred, batched_group_word_count):
+        assert len(group_pred) == len(group_word_count)
+        for (pred, label), (line_id, count) in zip(group_pred, group_word_count):
+            final_flatten_pred.append([[pred, label, line_id]] * count)
 
-    return list(itertools.chain.from_iterable(final_flattend_pred))
+    return list(itertools.chain.from_iterable(final_flatten_pred))
 
 
 def normalize_bbox(
@@ -262,7 +262,7 @@ class HierarchicalPDFPredictor(BasePDFPredictor):
             for prediction, label in zip(model_predictions, encoded_labels)
         ]
 
-        flatten_predictions = flatten_line_level_prediction(
+        flatten_predictions = flatten_group_level_prediction(
             true_predictions, model_inputs["group_word_count"]
         )
 
