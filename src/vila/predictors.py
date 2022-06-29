@@ -120,18 +120,14 @@ class BasePDFPredictor:
     def initialize_preprocessor(tokenizer, config):
         pass
 
-    def predict(self, pdf_data, page_size: Tuple) -> lp.Layout:
-        # page_size is (page_token.width, page_token.height)
-
-        model_inputs = self.preprocess_pdf_data(pdf_data, page_size)
-        model_outputs = self.model(**next(self.model_input_collator(model_inputs)))
-        model_predictions = self.get_category_prediction(model_outputs)
-        return self.postprocess_model_outputs(pdf_data, model_inputs, model_predictions)
-
-    def predict_page(
-        self, page_data: Dict, page_size: Tuple, batch_size: Optional[int] = None
+    def predict(
+        self,
+        page_data: Dict,
+        page_size: Tuple,
+        batch_size: Optional[int] = None,
+        return_type: Optional[str] = "layout",
     ) -> lp.Layout:
-        """Run Predictions on a PDF page.
+        """This is a generalized predict function that runs vila on a PDF page.
 
         Args:
             page_data (Dict):
@@ -141,6 +137,9 @@ class BasePDFPredictor:
             batch_size (Optional[int]):
                 Specifying the maximum number of batches for each model run.
                 By default it will encode all pages all at once.
+            return_type (Optional[str]):
+                It can be either "layout", for a structured token output,
+                or "list" for a list of predicted classes. Default is "layout".
         """
 
         # page_size is (page_token.width, page_token.height)
@@ -154,7 +153,7 @@ class BasePDFPredictor:
 
         model_predictions = np.vstack(model_predictions)
         return self.postprocess_model_outputs(
-            page_data, model_inputs, model_predictions
+            page_data, model_inputs, model_predictions, return_type
         )
 
     def get_category_prediction(self, model_outputs):
@@ -204,7 +203,9 @@ class SimplePDFPredictor(BasePDFPredictor):
     def initialize_preprocessor(tokenizer, config):
         return instantiate_dataset_preprocessor("base", tokenizer, config)
 
-    def postprocess_model_outputs(self, pdf_data, model_inputs, model_predictions):
+    def postprocess_model_outputs(
+        self, pdf_data, model_inputs, model_predictions, return_type
+    ):
 
         encoded_labels = model_inputs["labels"]
 
@@ -215,16 +216,21 @@ class SimplePDFPredictor(BasePDFPredictor):
 
         true_predictions = list(itertools.chain.from_iterable(true_predictions))
         preds = [self.id2label.get(ele[0], ele[0]) for ele in true_predictions]
-        words = [pdf_data["words"][idx] for idx in model_inputs["encoded_word_ids"]]
-        bboxes = [pdf_data["bbox"][idx] for idx in model_inputs["encoded_word_ids"]]
 
-        generated_tokens = []
-        for word, pred, bbox in zip(words, preds, bboxes):
-            generated_tokens.append(
-                lp.TextBlock(block=lp.Rectangle(*bbox), text=word, type=pred)
-            )
+        if return_type == "list":
+            return preds
 
-        return lp.Layout(generated_tokens)
+        elif return_type == "layout":
+            words = [pdf_data["words"][idx] for idx in model_inputs["encoded_word_ids"]]
+            bboxes = [pdf_data["bbox"][idx] for idx in model_inputs["encoded_word_ids"]]
+
+            generated_tokens = []
+            for word, pred, bbox in zip(words, preds, bboxes):
+                generated_tokens.append(
+                    lp.TextBlock(block=lp.Rectangle(*bbox), text=word, type=pred)
+                )
+
+            return lp.Layout(generated_tokens)
 
 
 class LayoutIndicatorPDFPredictor(SimplePDFPredictor):
@@ -245,7 +251,9 @@ class HierarchicalPDFPredictor(BasePDFPredictor):
             "hierarchical_modeling", tokenizer, config
         )
 
-    def postprocess_model_outputs(self, pdf_data, model_inputs, model_predictions):
+    def postprocess_model_outputs(
+        self, pdf_data, model_inputs, model_predictions, return_type
+    ):
 
         encoded_labels = model_inputs["labels"]
 
@@ -259,13 +267,17 @@ class HierarchicalPDFPredictor(BasePDFPredictor):
         )
 
         preds = [self.id2label.get(ele[0], ele[0]) for ele in flatten_predictions]
-        words = pdf_data["words"]
-        bboxes = pdf_data["bbox"]
+        if return_type == "list":
+            return preds
 
-        generated_tokens = []
-        for word, pred, bbox in zip(words, preds, bboxes):
-            generated_tokens.append(
-                lp.TextBlock(block=lp.Rectangle(*bbox), text=word, type=pred)
-            )
+        elif return_type == "layout":
+            words = pdf_data["words"]
+            bboxes = pdf_data["bbox"]
 
-        return lp.Layout(generated_tokens)
+            generated_tokens = []
+            for word, pred, bbox in zip(words, preds, bboxes):
+                generated_tokens.append(
+                    lp.TextBlock(block=lp.Rectangle(*bbox), text=word, type=pred)
+                )
+
+            return lp.Layout(generated_tokens)
