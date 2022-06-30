@@ -83,7 +83,7 @@ pdf_extractor = PDFExtractor("pdfplumber")
 page_tokens, page_images = pdf_extractor.load_tokens_and_image(f"path-to-your.pdf")
 
 vision_model = lp.EfficientDetLayoutModel("lp://PubLayNet") 
-pdf_predictor = HierarchicalPDFPredictor.from_pretrained("allenai/hvila-row-layoutlm-finetuned-docbank")
+pdf_predictor = HierarchicalPDFPredictor.from_pretrained("allenai/hvila-block-layoutlm-finetuned-docbank")
 
 for idx, page_token in enumerate(page_tokens):
     blocks = vision_model.detect(page_images[idx])

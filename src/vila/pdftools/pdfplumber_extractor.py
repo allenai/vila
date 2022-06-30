@@ -116,6 +116,7 @@ class PDFPlumberPageData:
     def page_size(self):
         return (self.width, self.height)
 
+
 def convert_token_dict_to_layout(tokens):
 
     lp_tokens = []
@@ -137,7 +138,7 @@ def convert_token_dict_to_layout(tokens):
 
 def load_page_data_from_dict(source_data: Dict[str, Any]) -> List[Dict]:
 
-    return [
+    page_data = [
         PDFPlumberPageData(
             height=page_data["page"]["height"],
             width=page_data["page"]["width"],
@@ -157,6 +158,11 @@ def load_page_data_from_dict(source_data: Dict[str, Any]) -> List[Dict]:
         )
         for page_data in source_data
     ]
+
+    for page_token in page_data:
+        page_token.lines = page_token.get_lines()
+
+    return page_data
 
 
 class PDFPlumberTokenExtractor(BasePDFTokenExtractor):
