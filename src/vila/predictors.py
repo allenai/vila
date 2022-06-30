@@ -198,13 +198,13 @@ class BasePDFPredictor:
         required_agg_level = self.preprocessor.config.agg_level
         required_group = AGG_LEVEL_TO_GROUP_NAME[required_agg_level]
 
-        if getattr(page_tokens, required_group + "s") is None:
+        if not getattr(page_tokens, required_group + "s"): # either none or empty
             if page_image is not None and visual_group_detector is not None:
                 warnings.warn(
                     f"The required_group {required_group} is missing in page_tokens."
                     f"Using the page_image and visual_group_detector to detect."
                 )
-                detected_groups = visual_group_detector.detect_visual_groups(page_image)
+                detected_groups = visual_group_detector.detect(page_image)
                 page_tokens.annotate(**{required_group + "s": detected_groups})
             else:
                 raise ValueError(
