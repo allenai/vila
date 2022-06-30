@@ -1,10 +1,9 @@
-import os
 from typing import List, Optional, Union, Dict, Any, Tuple
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 import itertools
 import inspect
-from dataclasses import dataclass
-import dataclasses
+import warnings
+import copy
 
 import numpy as np
 import torch
@@ -14,9 +13,15 @@ from .dataset.preprocessors import (
     instantiate_dataset_preprocessor,
     VILAPreprocessorConfig,
 )
-from .models.hierarchical_model import HierarchicalModelForTokenClassification
+from .pdftools.pdfplumber_extractor import PDFPlumberPageData
 from .automodel import AutoModelForTokenClassification, AutoTokenizer
 from .constants import MODEL_PDF_WIDTH, MODEL_PDF_HEIGHT
+
+
+AGG_LEVEL_TO_GROUP_NAME = {
+    "row": "line",
+    "block": "block",
+}
 
 
 def columns_used_in_model_inputs(model):
@@ -27,7 +32,9 @@ def columns_used_in_model_inputs(model):
 
 def flatten_group_level_prediction(batched_group_pred, batched_group_word_count):
     final_flatten_pred = []
-    for group_pred, group_word_count in zip(batched_group_pred, batched_group_word_count):
+    for group_pred, group_word_count in zip(
+        batched_group_pred, batched_group_word_count
+    ):
         assert len(group_pred) == len(group_word_count)
         for (pred, label), (line_id, count) in zip(group_pred, group_word_count):
             final_flatten_pred.append([[pred, label, line_id]] * count)
@@ -126,12 +133,19 @@ class BasePDFPredictor:
         page_size: Tuple,
         batch_size: Optional[int] = None,
         return_type: Optional[str] = "layout",
-    ) -> lp.Layout:
+    ) -> Union[lp.Layout, List]:
         """This is a generalized predict function that runs vila on a PDF page.
 
         Args:
             page_data (Dict):
-                The page-level data returned by PageData.to_dict()
+                The page-level data as a dict in the form of
+                {
+                    'words': ['word1', 'word2', ...],
+                    'bbox': [[x1, y1, x2, y2], [x1, y1, x2, y2], ...],
+                    'block_ids': [0, 0, 0, 1 ...],
+                    'line_ids': [0, 1, 1, 2 ...],
+                    'labels': [0, 0, 0, 1 ...], # could be empty
+                }
             page_size (Tuple):
                 A tuple of (width, height) for this page
             batch_size (Optional[int]):
@@ -155,6 +169,57 @@ class BasePDFPredictor:
         return self.postprocess_model_outputs(
             page_data, model_inputs, model_predictions, return_type
         )
+
+    def predict_page(
+        self,
+        page_tokens: PDFPlumberPageData,
+        page_image: Optional["PIL.Image"] = None,
+        visual_group_detector: Optional[Any] = None,
+        page_size=None,
+        batch_size=None,
+    ) -> lp.Layout:
+        """The predict_page function is used for running the model on a single page
+        in the vila page_token objects.
+
+        Args:
+            page_tokens (PDFPlumberPageData):
+                The page-level data as an PDFPlumberPageData object.
+            visual_group_detector:
+                The visual group model to use for detecting the required visual groups.
+            page_size (Tuple):
+                A tuple of (width, height) for this page. By default it will use the 
+                page_size from the page_tokens directly unless the page_size is explicitly 
+                specified.
+            batch_size (Optional[int]):
+                Specifying the maximum number of batches for each model run.
+                By default it will encode all pages all at once.
+        """
+        page_tokens = copy.copy(page_tokens)
+        required_agg_level = self.preprocessor.config.agg_level
+        required_group = AGG_LEVEL_TO_GROUP_NAME[required_agg_level]
+
+        if getattr(page_tokens, required_group + "s") is None:
+            if page_image is not None and visual_group_detector is not None:
+                warnings.warn(
+                    f"The required_group {required_group} is missing in page_tokens."
+                    f"Using the page_image and visual_group_detector to detect."
+                )
+                detected_groups = visual_group_detector.detect_visual_groups(page_image)
+                page_tokens.annotate(**{required_group + "s": detected_groups})
+            else:
+                raise ValueError(
+                    f"The required_group {required_group} is missing in page_tokens."
+                )
+
+        pdf_data = page_tokens.to_pagedata().to_dict()
+        predicted_tokens = self.predict(
+            page_data=pdf_data,
+            page_size=page_tokens.page_size if page_size is None else page_size,
+            batch_size=batch_size,
+            return_type="layout",
+        )
+
+        return predicted_tokens
 
     def get_category_prediction(self, model_outputs):
         predictions = model_outputs.logits.argmax(dim=-1).cpu().detach().numpy()
