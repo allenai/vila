@@ -1,3 +1,4 @@
+import pytest
 import layoutparser as lp
 
 from vila.pdftools.pdf_extractor import PDFExtractor
@@ -50,7 +51,7 @@ def test_ivila_run():
             page_token, page_image=page_images[idx], visual_group_detector=vision_model
         )
         assert page_token.blocks == []
-        
+
         # Method 2
         blocks = vision_model.detect(page_images[idx])
         page_token.annotate(blocks=blocks)
@@ -58,3 +59,25 @@ def test_ivila_run():
         predicted_tokens2 = pdf_predictor.predict(pdf_data, page_token.page_size)
 
         assert predicted_tokens1 == predicted_tokens2
+
+
+def test_vila_run_with_special_unicode_inputs():
+
+    pdf_data = {
+        "words": ["\uf02a", "New", "Modalities"],
+        "bbox": [
+            [82.806, 70.34515579999993, 123.4487846, 84.6913558],
+            [127.0353346, 70.34515579999993, 191.9949282, 84.6913558],
+            [195.5814782, 70.34515579999993, 262.26261580000005, 84.6913558],
+        ],
+        "block_ids": [0, 0, 0],
+    }
+
+    pdf_predictor = LayoutIndicatorPDFPredictor.from_pretrained(
+        "allenai/ivila-block-layoutlm-finetuned-docbank"
+    )
+
+    pdf_predictor.predict(pdf_data, (596, 842))
+
+    with pytest.raises(AssertionError):
+        pdf_predictor.predict(pdf_data, (596, 842), replace_empty_unicode=False)

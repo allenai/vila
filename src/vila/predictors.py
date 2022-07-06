@@ -15,7 +15,8 @@ from .dataset.preprocessors import (
 )
 from .pdftools.pdfplumber_extractor import PDFPlumberPageData
 from .automodel import AutoModelForTokenClassification, AutoTokenizer
-from .constants import MODEL_PDF_WIDTH, MODEL_PDF_HEIGHT
+from .constants import MODEL_PDF_WIDTH, MODEL_PDF_HEIGHT, UNICODE_CATEGORIES_TO_REPLACE
+from .utils import replace_unicode_tokens
 
 
 AGG_LEVEL_TO_GROUP_NAME = {
@@ -133,6 +134,7 @@ class BasePDFPredictor:
         page_size: Tuple,
         batch_size: Optional[int] = None,
         return_type: Optional[str] = "layout",
+        replace_empty_unicode: Optional[bool] = True,
     ) -> Union[lp.Layout, List]:
         """This is a generalized predict function that runs vila on a PDF page.
 
@@ -154,10 +156,15 @@ class BasePDFPredictor:
             return_type (Optional[str]):
                 It can be either "layout", for a structured token output,
                 or "list" for a list of predicted classes. Default is "layout".
+            replace_empty_unicode (Optional[bool]):
+                If True, replace certain unicode tokens with the "unknown" token
+                from the tokenizer. Default is True.
         """
 
         # page_size is (page_token.width, page_token.height)
-        model_inputs = self.preprocess_pdf_data(page_data, page_size)
+        model_inputs = self.preprocess_pdf_data(
+            page_data, page_size, replace_empty_unicode
+        )
         batched_inputs = self.model_input_collator(model_inputs, batch_size)
 
         model_predictions = []
@@ -178,6 +185,7 @@ class BasePDFPredictor:
         page_size=None,
         batch_size=None,
         return_type: Optional[str] = "layout",
+        replace_empty_unicode: Optional[bool] = True,
     ) -> Union[lp.Layout, List]:
         """The predict_page function is used for running the model on a single page
         in the vila page_token objects.
@@ -194,6 +202,9 @@ class BasePDFPredictor:
             batch_size (Optional[int]):
                 Specifying the maximum number of batches for each model run.
                 By default it will encode all pages all at once.
+            replace_empty_unicode (Optional[bool]):
+                If True, replace certain unicode tokens with the "unknown" token
+                from the tokenizer. Default is True.
         """
         page_tokens = copy.copy(page_tokens)
         required_agg_level = self.preprocessor.config.agg_level
@@ -218,6 +229,7 @@ class BasePDFPredictor:
             page_size=page_tokens.page_size if page_size is None else page_size,
             batch_size=batch_size,
             return_type=return_type,
+            replace_empty_unicode=replace_empty_unicode,
         )
 
         return predicted_tokens
@@ -226,10 +238,18 @@ class BasePDFPredictor:
         predictions = model_outputs.logits.argmax(dim=-1).cpu().detach().numpy()
         return predictions
 
-    def preprocess_pdf_data(self, pdf_data, page_size):
+    def preprocess_pdf_data(self, pdf_data, page_size, replace_empty_unicode):
         _labels = pdf_data.get("labels")
         pdf_data["labels"] = [0] * len(pdf_data["words"])
         page_width, page_height = page_size
+
+        _words = pdf_data["words"]
+        if replace_empty_unicode:
+            pdf_data["words"] = replace_unicode_tokens(
+                pdf_data["words"],
+                UNICODE_CATEGORIES_TO_REPLACE,
+                self.preprocessor.tokenizer.unk_token,
+            )
 
         sample = self.preprocessor.preprocess_sample(pdf_data)
         sample["bbox"] = [
@@ -239,6 +259,7 @@ class BasePDFPredictor:
 
         # Change back to the original pdf_data
         pdf_data["labels"] = _labels
+        pdf_data["words"] = _words
 
         return sample
 
@@ -283,6 +304,7 @@ class SimplePDFPredictor(BasePDFPredictor):
         true_predictions = list(itertools.chain.from_iterable(true_predictions))
         preds = [self.id2label.get(ele[0], ele[0]) for ele in true_predictions]
 
+        assert len(preds) == len(pdf_data["words"])
         if return_type == "list":
             return preds
 
@@ -333,6 +355,9 @@ class HierarchicalPDFPredictor(BasePDFPredictor):
         )
 
         preds = [self.id2label.get(ele[0], ele[0]) for ele in flatten_predictions]
+        # We don't need assertion here because flatten_group_level_prediction
+        # already guarantees the length of preds is the same as pdf_data["words"]
+
         if return_type == "list":
             return preds
 
