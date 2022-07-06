@@ -15,7 +15,8 @@ from .dataset.preprocessors import (
 )
 from .pdftools.pdfplumber_extractor import PDFPlumberPageData
 from .automodel import AutoModelForTokenClassification, AutoTokenizer
-from .constants import MODEL_PDF_WIDTH, MODEL_PDF_HEIGHT
+from .constants import MODEL_PDF_WIDTH, MODEL_PDF_HEIGHT, UNICODE_CATEGORIES_TO_REPLACE
+from .utils import replace_unicode_tokens
 
 
 AGG_LEVEL_TO_GROUP_NAME = {
@@ -231,6 +232,13 @@ class BasePDFPredictor:
         pdf_data["labels"] = [0] * len(pdf_data["words"])
         page_width, page_height = page_size
 
+        _words = pdf_data["words"]
+        pdf_data["words"] = replace_unicode_tokens(
+            pdf_data["words"],
+            UNICODE_CATEGORIES_TO_REPLACE,
+            self.preprocessor.tokenizer.unk_token,
+        )
+
         sample = self.preprocessor.preprocess_sample(pdf_data)
         sample["bbox"] = [
             [normalize_bbox(bbox, page_width, page_height) for bbox in batch]
@@ -239,6 +247,7 @@ class BasePDFPredictor:
 
         # Change back to the original pdf_data
         pdf_data["labels"] = _labels
+        pdf_data["words"] = _words
 
         return sample
 

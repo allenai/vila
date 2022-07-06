@@ -1,13 +1,16 @@
 from typing import List, Union, Dict, Any, Tuple
 import logging
+import unicodedata
 from copy import deepcopy
 
 import layoutparser as lp
 
+logger = logging.getLogger(__name__)
+
 
 def union_box(blocks) -> List:
     if len(blocks) == 0:
-        logging.warning("The length of blocks is 0!")
+        logger.warning("The length of blocks is 0!")
         return [0, 0, 0, 0]
 
     x1, y1, x2, y2 = float("inf"), float("inf"), float("-inf"), float("-inf")
@@ -50,10 +53,10 @@ def assign_tokens_to_blocks(
     """It will assign the token to the corresponding blocks,
     sort the blocks based on the token ids (the blocks are
     ordered based on the minimum id of the contained tokens),
-    and then assign the correspinding block_id to the tokens 
-    within the block. 
-    
-    It will return a Tuple for blocks (in correct order) and 
+    and then assign the correspinding block_id to the tokens
+    within the block.
+
+    It will return a Tuple for blocks (in correct order) and
     tokens (with block_id assigned and in the original order).
     """
     blocks = deepcopy(blocks)
@@ -99,3 +102,26 @@ def assign_tokens_to_blocks(
     tokens.extend(remaining_tokens)
 
     return blocks, sorted(tokens, key=lambda ele: ele.id)
+
+
+def replace_unicode_tokens(
+    tokens: List[str], unicode_categories: List[str], replace_token: str
+) -> List[str]:
+    """Replace certain unicode tokens that are in the specified categories
+    with the replace_token.
+
+    Args:
+        tokens (List[str]): a list of PDF tokens
+        unicode_categories (List[str]): the unicode categories to be replaced
+        replace_token (str): the token to replace the unicode tokens
+    """
+    tokens = tokens.copy()
+    for idx in range(len(tokens)):
+        if len(tokens[idx]) > 1: 
+            continue
+        cat = unicodedata.category(tokens[idx])
+        if cat in unicode_categories:
+            logging.debug(f"Replacing {tokens[idx]} of Unicode Category {cat} with {replace_token}")
+            tokens[idx] = replace_token
+    
+    return tokens
