@@ -1,3 +1,4 @@
+import pytest
 import layoutparser as lp
 
 from vila.pdftools.pdf_extractor import PDFExtractor
@@ -77,3 +78,6 @@ def test_vila_run_with_special_unicode_inputs():
     )
 
     pdf_predictor.predict(pdf_data, (596, 842))
+
+    with pytest.raises(AssertionError):
+        pdf_predictor.predict(pdf_data, (596, 842), replace_empty_unicode=False)
