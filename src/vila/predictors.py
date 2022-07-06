@@ -292,6 +292,7 @@ class SimplePDFPredictor(BasePDFPredictor):
         true_predictions = list(itertools.chain.from_iterable(true_predictions))
         preds = [self.id2label.get(ele[0], ele[0]) for ele in true_predictions]
 
+        assert len(preds) == len(pdf_data["words"])
         if return_type == "list":
             return preds
 
@@ -342,6 +343,9 @@ class HierarchicalPDFPredictor(BasePDFPredictor):
         )
 
         preds = [self.id2label.get(ele[0], ele[0]) for ele in flatten_predictions]
+        # We don't need assertion here because flatten_group_level_prediction
+        # already guarantees the length of preds is the same as pdf_data["words"]
+
         if return_type == "list":
             return preds
 
