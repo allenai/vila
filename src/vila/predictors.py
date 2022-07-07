@@ -58,10 +58,11 @@ def normalize_bbox(
 
     # Right now only execute this for only "large" PDFs
     # TODO: Change it for all PDFs
-    if page_width > target_width or page_height > target_height:
-
+    if page_width > target_width:
         x1 = float(x1) / page_width * target_width
         x2 = float(x2) / page_width * target_width
+        
+    if page_height > target_height:
         y1 = float(y1) / page_height * target_height
         y2 = float(y2) / page_height * target_height
 
