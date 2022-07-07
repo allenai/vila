@@ -81,3 +81,73 @@ def test_vila_run_with_special_unicode_inputs():
 
     with pytest.raises(AssertionError):
         pdf_predictor.predict(pdf_data, (596, 842), replace_empty_unicode=False)
+
+
+def test_vila_run_bbox():
+
+    pdf_data = {
+        "words": ["\uf02a", "New", "Modalities"],
+        "block_ids": [0, 0, 0],
+    }
+
+    pdf_predictor = LayoutIndicatorPDFPredictor.from_pretrained(
+        "allenai/ivila-block-layoutlm-finetuned-docbank"
+    )
+
+    # Case 1: Good boxes 
+    bbox =  [
+        [82, 70, 123, 84],
+        [127, 70, 191, 84],
+        [195, 70, 262, 84],
+    ]
+    pdf_data["bbox"] = bbox
+    pdf_predictor.predict(pdf_data, (596, 800))
+
+    # Case 2: Good boxes -- float
+    bbox =  [
+        [82.806, 70.34515579999993, 123.4487846, 84.6913558],
+        [127.0353346, 70.34515579999993, 191.9949282, 84.6913558],
+        [195.5814782, 70.34515579999993, 262.26261580000005, 84.6913558],
+    ]
+    pdf_data["bbox"] = bbox
+    pdf_predictor.predict(pdf_data, (596, 800))
+
+    # Case 3: Large Pages - height 
+
+    bbox =  [
+        [82.806, 70.34515579999993, 123.4487846, 84.6913558],
+        [127.0353346, 70.34515579999993, 191.9949282, 84.6913558],
+        [195.5814782, 70.34515579999993, 262.26261580000005, 84.6913558],
+    ]
+    pdf_data["bbox"] = bbox
+    pdf_predictor.predict(pdf_data, (596, 1200))
+
+    # Case 4: Large Pages - width 
+
+    bbox =  [
+        [82.806, 70.34515579999993, 123.4487846, 84.6913558],
+        [127.0353346, 70.34515579999993, 191.9949282, 84.6913558],
+        [195.5814782, 70.34515579999993, 262.26261580000005, 84.6913558],
+    ]
+    pdf_data["bbox"] = bbox
+    pdf_predictor.predict(pdf_data, (1200, 596))
+
+    # Case 5: Large Pages - Both 
+
+    bbox =  [
+        [82.806, 70.34515579999993, 123.4487846, 84.6913558],
+        [127.0353346, 70.34515579999993, 191.9949282, 84.6913558],
+        [195.5814782, 70.34515579999993, 262.26261580000005, 84.6913558],
+    ]
+    pdf_data["bbox"] = bbox
+    pdf_predictor.predict(pdf_data, (1200, 1200))
+
+    # C Case 6: Incorrect Bbox (x1>x2)
+
+    bbox =  [
+        [82.806, 70.34515579999993, 123.4487846, 84.6913558],
+        [191.9949282, 70.34515579999993, 127.0353346, 84.6913558],
+        [296, 70.34515579999993, 262.26261580000005, 84.6913558],
+    ]
+    pdf_data["bbox"] = bbox
+    pdf_predictor.predict(pdf_data, (1200, 1200))
