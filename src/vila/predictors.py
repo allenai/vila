@@ -61,7 +61,7 @@ def normalize_bbox(
     if page_width > target_width:
         x1 = float(x1) / page_width * target_width
         x2 = float(x2) / page_width * target_width
-        
+
     if page_height > target_height:
         y1 = float(y1) / page_height * target_height
         y2 = float(y2) / page_height * target_height
@@ -252,15 +252,16 @@ class BasePDFPredictor:
                 self.preprocessor.tokenizer.unk_token,
             )
 
-        sample = self.preprocessor.preprocess_sample(pdf_data)
-        sample["bbox"] = [
-            [normalize_bbox(bbox, page_width, page_height) for bbox in batch]
-            for batch in sample["bbox"]
+        _bbox = pdf_data["bbox"]
+        pdf_data["bbox"] = [
+            normalize_bbox(box, page_width, page_height) for box in pdf_data["bbox"]
         ]
+        sample = self.preprocessor.preprocess_sample(pdf_data)
 
         # Change back to the original pdf_data
         pdf_data["labels"] = _labels
         pdf_data["words"] = _words
+        pdf_data["bbox"] = _bbox
 
         return sample
 
