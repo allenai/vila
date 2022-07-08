@@ -117,11 +117,8 @@ def replace_unicode_tokens(
     """
     tokens = tokens.copy()
     for idx in range(len(tokens)):
-        if len(tokens[idx]) > 1: 
-            continue
-        cat = unicodedata.category(tokens[idx])
-        if cat in unicode_categories:
-            logging.debug(f"Replacing {tokens[idx]} of Unicode Category {cat} with {replace_token}")
+        if any(unicodedata.category(ch) in unicode_categories for ch in tokens[idx]):
+            logging.debug(f"Replacing special unicode tokens {tokens[idx]} with {replace_token}")
             tokens[idx] = replace_token
     
     return tokens
