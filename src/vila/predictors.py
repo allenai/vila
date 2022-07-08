@@ -59,23 +59,28 @@ def normalize_bbox(
 
     # Right now only execute this for only "large" PDFs
     # TODO: Change it for all PDFs
-    if page_width > target_width:
-        logger.warning(f"Scaling page horizontally as page width {page_width} is larger than target width {target_width}")
-        x1 = float(x1) / page_width * target_width
-        x2 = float(x2) / page_width * target_width
 
-    if page_height > target_height:
-        logger.warning(f"Scaling page vertically as page height {page_height} is larger than target height {target_height}")
-        y1 = float(y1) / page_height * target_height
-        y2 = float(y2) / page_height * target_height
 
     if x1 > x2:
-        logger.warning(f"Incompatible x coordinates: x1:{x1} > x2{x2}")
+        logger.warning(f"Incompatible x coordinates: x1:{x1} > x2:{x2}")
         x1, x2 = x2, x1
 
     if y1 > y2:
-        logger.warning(f"Incompatible y coordinates: y1:{y1} > y2{y2}")
+        logger.warning(f"Incompatible y coordinates: y1:{y1} > y2:{y2}")
         y1, y2 = y2, y1
+
+    if page_width > target_width or page_height > target_height:
+
+        # Aspect ratio preserving scaling
+        scale_factor = target_width / page_width if page_width > page_height else target_height / page_height
+
+        logger.warning(f"Scaling page as page width {page_width} is larger than target width {target_width} or height {page_height} is larger than target height {target_height}")
+        
+        x1 = float(x1) * scale_factor
+        x2 = float(x2) * scale_factor
+
+        y1 = float(y1) * scale_factor
+        y2 = float(y2) * scale_factor
 
     return (x1, y1, x2, y2)
 
@@ -95,11 +100,19 @@ def unnormalize_bbox(
 
     # Right now only execute this for only "large" PDFs
     # TODO: Change it for all PDFs
+    
     if page_width > target_width or page_height > target_height:
-        x1 = float(x1) / target_width * page_width
-        x2 = float(x2) / target_width * page_width
-        y1 = float(y1) / target_height * page_height
-        y2 = float(y2) / target_height * page_height
+
+        # Aspect ratio preserving scaling
+        scale_factor = target_width / page_width if page_width > page_height else target_height / page_height
+
+        logger.warning(f"Scaling page as page width {page_width} is larger than target width {target_width} or height {page_height} is larger than target height {target_height}")
+        
+        x1 = float(x1) / scale_factor
+        x2 = float(x2) / scale_factor
+
+        y1 = float(y1) / scale_factor
+        y2 = float(y2) / scale_factor
 
     return (x1, y1, x2, y2)
 
