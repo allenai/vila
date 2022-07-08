@@ -2,7 +2,7 @@ from typing import List, Optional, Union, Dict, Any, Tuple
 from abc import abstractmethod
 import itertools
 import inspect
-import warnings
+import logging
 import copy
 
 import numpy as np
@@ -18,6 +18,7 @@ from .automodel import AutoModelForTokenClassification, AutoTokenizer
 from .constants import MODEL_PDF_WIDTH, MODEL_PDF_HEIGHT, UNICODE_CATEGORIES_TO_REPLACE
 from .utils import replace_unicode_tokens
 
+logger = logging.getLogger(__name__)
 
 AGG_LEVEL_TO_GROUP_NAME = {
     "row": "line",
@@ -58,12 +59,28 @@ def normalize_bbox(
 
     # Right now only execute this for only "large" PDFs
     # TODO: Change it for all PDFs
+
+
+    if x1 > x2:
+        logger.warning(f"Incompatible x coordinates: x1:{x1} > x2:{x2}")
+        x1, x2 = x2, x1
+
+    if y1 > y2:
+        logger.warning(f"Incompatible y coordinates: y1:{y1} > y2:{y2}")
+        y1, y2 = y2, y1
+
     if page_width > target_width or page_height > target_height:
 
-        x1 = float(x1) / page_width * target_width
-        x2 = float(x2) / page_width * target_width
-        y1 = float(y1) / page_height * target_height
-        y2 = float(y2) / page_height * target_height
+        # Aspect ratio preserving scaling
+        scale_factor = target_width / page_width if page_width > page_height else target_height / page_height
+
+        logger.warning(f"Scaling page as page width {page_width} is larger than target width {target_width} or height {page_height} is larger than target height {target_height}")
+        
+        x1 = float(x1) * scale_factor
+        x2 = float(x2) * scale_factor
+
+        y1 = float(y1) * scale_factor
+        y2 = float(y2) * scale_factor
 
     return (x1, y1, x2, y2)
 
@@ -83,11 +100,19 @@ def unnormalize_bbox(
 
     # Right now only execute this for only "large" PDFs
     # TODO: Change it for all PDFs
+    
     if page_width > target_width or page_height > target_height:
-        x1 = float(x1) / target_width * page_width
-        x2 = float(x2) / target_width * page_width
-        y1 = float(y1) / target_height * page_height
-        y2 = float(y2) / target_height * page_height
+
+        # Aspect ratio preserving scaling
+        scale_factor = target_width / page_width if page_width > page_height else target_height / page_height
+
+        logger.warning(f"Scaling page as page width {page_width} is larger than target width {target_width} or height {page_height} is larger than target height {target_height}")
+        
+        x1 = float(x1) / scale_factor
+        x2 = float(x2) / scale_factor
+
+        y1 = float(y1) / scale_factor
+        y2 = float(y2) / scale_factor
 
     return (x1, y1, x2, y2)
 
@@ -212,7 +237,7 @@ class BasePDFPredictor:
 
         if not getattr(page_tokens, required_group + "s"):  # either none or empty
             if page_image is not None and visual_group_detector is not None:
-                warnings.warn(
+                logger.warning(
                     f"The required_group {required_group} is missing in page_tokens."
                     f"Using the page_image and visual_group_detector to detect."
                 )
@@ -251,15 +276,16 @@ class BasePDFPredictor:
                 self.preprocessor.tokenizer.unk_token,
             )
 
-        sample = self.preprocessor.preprocess_sample(pdf_data)
-        sample["bbox"] = [
-            [normalize_bbox(bbox, page_width, page_height) for bbox in batch]
-            for batch in sample["bbox"]
+        _bbox = pdf_data["bbox"]
+        pdf_data["bbox"] = [
+            normalize_bbox(box, page_width, page_height) for box in pdf_data["bbox"]
         ]
+        sample = self.preprocessor.preprocess_sample(pdf_data)
 
         # Change back to the original pdf_data
         pdf_data["labels"] = _labels
         pdf_data["words"] = _words
+        pdf_data["bbox"] = _bbox
 
         return sample
 
