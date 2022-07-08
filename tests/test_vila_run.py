@@ -64,7 +64,7 @@ def test_ivila_run():
 def test_vila_run_with_special_unicode_inputs():
 
     pdf_data = {
-        "words": ["\uf02a", "New", "Modalities"],
+        "words": ["\uf02a", "\uf02a\u00ad", "Modalities"],
         "bbox": [
             [82.806, 70.34515579999993, 123.4487846, 84.6913558],
             [127.0353346, 70.34515579999993, 191.9949282, 84.6913558],
