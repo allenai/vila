@@ -2,7 +2,7 @@ from typing import List, Optional, Union, Dict, Any, Tuple
 from abc import abstractmethod
 import itertools
 import inspect
-import warnings
+import logging
 import copy
 
 import numpy as np
@@ -18,6 +18,7 @@ from .automodel import AutoModelForTokenClassification, AutoTokenizer
 from .constants import MODEL_PDF_WIDTH, MODEL_PDF_HEIGHT, UNICODE_CATEGORIES_TO_REPLACE
 from .utils import replace_unicode_tokens
 
+logger = logging.getLogger(__name__)
 
 AGG_LEVEL_TO_GROUP_NAME = {
     "row": "line",
@@ -59,12 +60,22 @@ def normalize_bbox(
     # Right now only execute this for only "large" PDFs
     # TODO: Change it for all PDFs
     if page_width > target_width:
+        logger.warning(f"Scaling page horizontally as page width {page_width} is larger than target width {target_width}")
         x1 = float(x1) / page_width * target_width
         x2 = float(x2) / page_width * target_width
 
     if page_height > target_height:
+        logger.warning(f"Scaling page vertically as page height {page_height} is larger than target height {target_height}")
         y1 = float(y1) / page_height * target_height
         y2 = float(y2) / page_height * target_height
+
+    if x1 > x2:
+        logger.warning(f"Incompatible x coordinates: x1:{x1} > x2{x2}")
+        x1, x2 = x2, x1
+
+    if y1 > y2:
+        logger.warning(f"Incompatible y coordinates: y1:{y1} > y2{y2}")
+        y1, y2 = y2, y1
 
     return (x1, y1, x2, y2)
 
@@ -213,7 +224,7 @@ class BasePDFPredictor:
 
         if not getattr(page_tokens, required_group + "s"):  # either none or empty
             if page_image is not None and visual_group_detector is not None:
-                warnings.warn(
+                logger.warning(
                     f"The required_group {required_group} is missing in page_tokens."
                     f"Using the page_image and visual_group_detector to detect."
                 )
