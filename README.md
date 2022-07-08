@@ -1,7 +1,7 @@
 # VILA🌴 <br> Incorporating **VI**sual **LA**yout Structures for Scientific Text Classification
 
-<a href="https://arxiv.org/abs/2106.00676"><img src="https://img.shields.io/badge/arXiv-2106.00676-b31b1b.svg" title="Layout Parser Paper"></a>
-<a href="https://github.com/Layout-Parser/layout-parser/blob/master/LICENSE"><img src="https://img.shields.io/pypi/l/layoutparser" title="Layout Parser uses Apache 2 License"></a>
+<a href="https://arxiv.org/abs/2106.00676"><img src="https://img.shields.io/badge/arXiv-2106.00676-b31b1b.svg" title="VILA Paper"></a>
+<a href="https://github.com/allenai/vila/blob/master/LICENSE"><img src="https://img.shields.io/pypi/l/vila" title="VILA uses Apache 2 License"></a>
 
 - [VILA🌴 <br> Incorporating **VI**sual **LA**yout Structures for Scientific Text Classification](#vila--incorporating-visual-layout-structures-for-scientific-text-classification)
   - [Motivation](#motivation)
