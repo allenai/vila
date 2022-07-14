@@ -62,11 +62,11 @@ def normalize_bbox(
 
 
     if x1 > x2:
-        logger.warning(f"Incompatible x coordinates: x1:{x1} > x2:{x2}")
+        logger.debug(f"Incompatible x coordinates: x1:{x1} > x2:{x2}")
         x1, x2 = x2, x1
 
     if y1 > y2:
-        logger.warning(f"Incompatible y coordinates: y1:{y1} > y2:{y2}")
+        logger.debug(f"Incompatible y coordinates: y1:{y1} > y2:{y2}")
         y1, y2 = y2, y1
 
     if page_width > target_width or page_height > target_height:
@@ -74,7 +74,7 @@ def normalize_bbox(
         # Aspect ratio preserving scaling
         scale_factor = target_width / page_width if page_width > page_height else target_height / page_height
 
-        logger.warning(f"Scaling page as page width {page_width} is larger than target width {target_width} or height {page_height} is larger than target height {target_height}")
+        logger.debug(f"Scaling page as page width {page_width} is larger than target width {target_width} or height {page_height} is larger than target height {target_height}")
         
         x1 = float(x1) * scale_factor
         x2 = float(x2) * scale_factor
@@ -106,7 +106,7 @@ def unnormalize_bbox(
         # Aspect ratio preserving scaling
         scale_factor = target_width / page_width if page_width > page_height else target_height / page_height
 
-        logger.warning(f"Scaling page as page width {page_width} is larger than target width {target_width} or height {page_height} is larger than target height {target_height}")
+        logger.debug(f"Scaling page as page width {page_width} is larger than target width {target_width} or height {page_height} is larger than target height {target_height}")
         
         x1 = float(x1) / scale_factor
         x2 = float(x2) / scale_factor
