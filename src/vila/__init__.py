@@ -7,4 +7,4 @@ from .predictors import (
     HierarchicalPDFPredictor,
 )
 
-__version__ = "0.4.2"
+__version__ = "0.5.0+cw07"

@@ -31,5 +31,23 @@ setup(
     long_description=open("README.md", "r", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
     python_requires=">=3.6",
-    install_requires=get_requirements("requirements.txt"),
+    extras_require={
+        "onnx": ["onnxruntime"],
+        "optimum": ["optimum[onnxruntime]"],
+        "optimum-gpu": ["optimum[onnxruntime-gpu]"]
+    },
+    install_requires=[
+        "torch>=1.5",
+        "torchvision>=0.6.0",
+        "pandas",
+        "pytest",
+        "pysbd",
+        "layoutparser[effdet]>=0.2",
+        "transformers>4.5", # Enforce the version for now
+        "datasets",
+        "pdfplumber",
+        "pdf2image",
+        "tqdm",
+        "scikit-learn"
+    ]
 )

@@ -4,6 +4,7 @@ import itertools
 import inspect
 import logging
 import copy
+import os
 
 import numpy as np
 import torch
@@ -75,7 +76,7 @@ def normalize_bbox(
         scale_factor = target_width / page_width if page_width > page_height else target_height / page_height
 
         logger.debug(f"Scaling page as page width {page_width} is larger than target width {target_width} or height {page_height} is larger than target height {target_height}")
-        
+
         x1 = float(x1) * scale_factor
         x2 = float(x2) * scale_factor
 
@@ -100,14 +101,14 @@ def unnormalize_bbox(
 
     # Right now only execute this for only "large" PDFs
     # TODO: Change it for all PDFs
-    
+
     if page_width > target_width or page_height > target_height:
 
         # Aspect ratio preserving scaling
         scale_factor = target_width / page_width if page_width > page_height else target_height / page_height
 
         logger.debug(f"Scaling page as page width {page_width} is larger than target width {target_width} or height {page_height} is larger than target height {target_height}")
-        
+
         x1 = float(x1) / scale_factor
         x2 = float(x2) / scale_factor
 
@@ -129,16 +130,29 @@ class BasePDFPredictor:
             self.device = device
             model.to(self.device)
 
-        self.model.eval()
+        # Optimum-wrapped ONNX models don't have an eval mode
+        if hasattr(self.model, "eval"):
+            self.model.eval()
         self._used_cols = columns_used_in_model_inputs(self.model)
 
     @classmethod
     def from_pretrained(
         cls, model_path, preprocessor=None, device=None, **preprocessor_config
     ):
-
-        model = AutoModelForTokenClassification.from_pretrained(model_path)
         tokenizer = AutoTokenizer.from_pretrained(model_path)
+
+        if os.path.exists(os.path.join(model_path, "model.onnx")):
+            try:
+                from optimum.onnxruntime import ORTModelForTokenClassification
+                model = ORTModelForTokenClassification.from_pretrained(model_path, file_name="model.onnx")
+            except:
+                raise Exception("""
+                    The provided model is an ONNX graph, and requires additional packages to be installed.
+                    Please install `vila[optimum]` / `vila[optimum-gpu]`, or switch to an uncompiled 
+                    pytorch model to proceed.
+                """)
+        else:
+            model = AutoModelForTokenClassification.from_pretrained(model_path)
 
         if preprocessor is None:
             preprocessor_config = VILAPreprocessorConfig.from_pretrained(
