@@ -23,8 +23,8 @@ jobs:
 
       - name: Install poppler
         run: |
-           apt-get update
-           apt-get install poppler-utils -y
+          sudo apt-get update
+          sudo apt-get install poppler-utils -y
       
       - name: Test with Python ${{ matrix.python-version }}
         run: | 
