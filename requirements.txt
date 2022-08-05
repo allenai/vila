@@ -13,7 +13,7 @@ pysbd
 layoutparser[effdet]>=0.2
 
 # HF 
-transformers==4.5 # Enforce the version for now 
+transformers
 datasets
 
 # For extracting PDF and images from the input
