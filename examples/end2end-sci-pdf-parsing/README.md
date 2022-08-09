@@ -50,6 +50,7 @@ The returned CSV looks like this:
 |  ... |  ... | ...       | ...                                                                                             |            |          |
 |   83 |    7 | Caption   | Table 2: Performance of baseline and I-VILA models on the scientiﬁc document ...                |      Table |       11 |
 |  ... |  ... | ...       | ...                                                                                             |            |          |
+
 Note:
 1. If an item is a caption, it will be linked to the actual figure/caption object on that page with the corresponding `block_id`. 
 
