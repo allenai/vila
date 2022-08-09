@@ -98,7 +98,7 @@ class PDFPlumberPageData:
 
         for key, blocks in kwargs.items():
             if key in ["lines", "blocks"]:
-                blocks, tokens = assign_tokens_to_blocks(blocks, self.tokens)
+                blocks, tokens = assign_tokens_to_blocks(blocks, self.tokens, keep_empty_blocks=True)
                 setattr(self, key, blocks)
                 self.tokens = tokens
 
@@ -181,7 +181,7 @@ class PDFPlumberTokenExtractor(BasePDFTokenExtractor):
             width=row["width"],
             y=row["top"],
             height=row["height"],
-            font=row.get("fontname"),
+            font=f'{row.get("fontname")}-{int(row.get("size")) if row.get("size") else ""}',
         )
 
     def obtain_word_tokens(self, cur_page: pdfplumber.page.Page) -> List[Dict]:

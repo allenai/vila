@@ -286,7 +286,7 @@ def pipeline(
                 interval_lines
             ), f"{len(line_to_block_id)}, {len(interval_lines)}"
             prev_len = 0
-            print(line_to_block_id)
+            # print(line_to_block_id)
             for gp, seq in itertools.groupby(line_to_block_id):
                 cur_len = prev_len + len(list(seq))
                 cur_intervals = page_paragraph["intervals"][prev_len:cur_len]
@@ -356,6 +356,7 @@ def pipeline(
     tmp.drop(columns=["index", "intervals"]).to_csv(save_path / "structure.csv")
 
     # Save figures and tables
+    os.makedirs(save_path / "figures", exist_ok=True)
     for pid, page_token in enumerate(page_tokens):
         page_image = np.array(page_images[pid])
         for block in page_token.blocks:

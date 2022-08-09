@@ -26,7 +26,7 @@ def write_json(data, filename):
 
 def union_box(blocks):
     if len(blocks) == 0:
-        logging.warning("The length of blocks is 0!")
+        logging.debug("The length of blocks is 0!")
         return [0, 0, 0, 0]
 
     x1, y1, x2, y2 = float("inf"), float("inf"), float("-inf"), float("-inf")
