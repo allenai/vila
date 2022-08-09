@@ -62,7 +62,7 @@ def union(block1, block2):
             block,
             id=block1.id,
             type=block1.type,
-            text=block1.text,
+            text=block1.text + " " + block2.text,
             parent=block1.parent,
             next=block1.next,
         )
@@ -154,12 +154,14 @@ def get_text_for_intervals(row, page_tokens):
 
 
 def pipeline(
-    input_pdf: Path,
-    output_path: Path,
-    pdf_extractor,
-    vision_model1,
-    vision_model2,
-    pdf_predictor,
+    *,
+    input_pdf: Path = None,
+    output_path: Path = None,
+    pdf_extractor=None,
+    vision_model1=None,
+    vision_model2=None,
+    pdf_predictor=None,
+    return_csv=False,
 ):
     page_tokens, page_images = pdf_extractor.load_tokens_and_image(input_pdf)
 
@@ -349,6 +351,9 @@ def pipeline(
         partial(get_text_for_intervals, page_tokens=page_tokens), axis=1
     )
 
+    if return_csv:
+        return tmp.drop(columns=["index", "intervals"])
+
     save_path = output_path / input_pdf.stem
     os.makedirs(save_path, exist_ok=True)
 
@@ -369,6 +374,16 @@ def pipeline(
             figure_screenshot.save(save_path / f"figures/{pid:02d}-{block.id:02d}.png")
 
 
+def build_predictors():
+    pdf_extractor = PDFExtractor("pdfplumber")
+    vision_model1 = lp.EfficientDetLayoutModel("lp://PubLayNet")
+    vision_model2 = lp.EfficientDetLayoutModel("lp://MFD")
+    pdf_predictor = LayoutIndicatorPDFPredictor.from_pretrained(
+        "allenai/ivila-row-layoutlm-finetuned-s2vl-v2"
+    )
+    return pdf_extractor, vision_model1, vision_model2, pdf_predictor
+
+
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
@@ -376,18 +391,13 @@ if __name__ == "__main__":
     parser.add_argument("--output_path", type=str, default=".", help="desc")
     args = parser.parse_args()
 
-    pdf_extractor = PDFExtractor("pdfplumber")
-    vision_model1 = lp.EfficientDetLayoutModel("lp://PubLayNet")
-    vision_model2 = lp.EfficientDetLayoutModel("lp://MFD")
-    pdf_predictor = LayoutIndicatorPDFPredictor.from_pretrained(
-        "allenai/ivila-row-layoutlm-finetuned-s2vl-v2"
-    )
+    pdf_extractor, vision_model1, vision_model2, pdf_predictor = build_predictors()
 
     pipeline(
-        Path(args.input_pdf),
-        Path(args.output_path),
-        pdf_extractor,
-        vision_model1,
-        vision_model2,
-        pdf_predictor,
+        input_pdf=Path(args.input_pdf),
+        output_path=Path(args.output_path),
+        pdf_extractor=pdf_extractor,
+        vision_model1=vision_model1,
+        vision_model2=vision_model2,
+        pdf_predictor=pdf_predictor,
     )
