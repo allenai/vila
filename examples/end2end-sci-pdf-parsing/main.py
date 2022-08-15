@@ -161,6 +161,7 @@ def pipeline(
     vision_model1=None,
     vision_model2=None,
     pdf_predictor=None,
+    relative_coordinates=False,
     return_csv=False,
 ):
     page_tokens, page_images = pdf_extractor.load_tokens_and_image(input_pdf)
@@ -366,6 +367,15 @@ def pipeline(
         partial(get_text_coord_for_intervals, page_tokens=page_tokens), axis=1
     )
 
+    if relative_coordinates:
+        for page_id in tmp['page'].unique():
+            cur_page_w, cur_page_h = page_images[page_id].size
+            idx = tmp[tmp["page"]==page_id].index
+            tmp.loc[idx, 'x1'] /= cur_page_w
+            tmp.loc[idx, 'x2'] /= cur_page_w
+            tmp.loc[idx, 'y1'] /= cur_page_h
+            tmp.loc[idx, 'y2'] /= cur_page_h
+            
     if return_csv:
         return tmp.drop(columns=["index", "intervals"])
 

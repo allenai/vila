@@ -22,7 +22,8 @@ And the parsing of papers can be surprising simple:
     ```python
     import pandas as pd 
     pdf_url = "https://arxiv.org/pdf/2106.00676.pdf" # link/to/your/paper.pdf 
-    parsed = pd.read_csv(f"http://127.0.0.1:8080/parse/?pdf_url={pdf_url}")
+    relative_coordinates = True # whether returning relative coordinates or not 
+    parsed = pd.read_csv(f"http://127.0.0.1:8080/parse/?pdf_url={pdf_url}&relative_coordinates={relative_coordinates}")
     ```
 2. Parse papers from local files 
     ```python
@@ -34,6 +35,25 @@ And the parsing of papers can be surprising simple:
     files = {"pdf_file": (f.name, f, "multipart/form-data")}
     r = requests.post('http://localhost:8080/parse', files=files)
     parsed = pd.read_csv(io.StringIO(r.content.decode('utf-8')))
+    ```
+3. Visualize the output in Python
+    ```python
+    import layoutparser as lp
+    page_tokens, page_images = lp.load_pdf("test.pdf", load_images=True)
+    for page_id in range(len(page_images)):
+        cur_page_w, cur_page_h = page_images[page_id].size
+        tdf = (parsed[parsed['page']==page_id][["x1", "y1", "x2", "y2"]])
+        tdf['x1'] *= cur_page_w
+        tdf['x2'] *= cur_page_w
+        tdf['y1'] *= cur_page_h
+        tdf['y2'] *= cur_page_h
+        tdf = tdf.rename(columns={"x1":"x_1", "y1":"y_1", "x2":"x_2", "y2":"y_2"})
+        display(
+            lp.draw_box(
+            page_images[page_id],
+            lp.load_dataframe(tdf,block_type="rectangle")
+            )
+        )
     ```
 
 The returned CSV looks like this:
