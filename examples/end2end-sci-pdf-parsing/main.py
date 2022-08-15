@@ -144,12 +144,12 @@ def get_caption_header(caption):
     return None
 
 
-def get_text_for_intervals(row, page_tokens):
+def get_text_coord_for_intervals(row, page_tokens):
     page_id = row["page"]
     tokens = page_tokens[page_id].tokens
-
-    return " ".join(
-        select_tokens_based_on_intervals(tokens, row["intervals"]).get_texts()
+    cur_block = union_blocks(select_tokens_based_on_intervals(tokens, row["intervals"]))
+    return pd.Series(
+        [cur_block.text, *cur_block.coordinates], index=["text", "x1", "y1", "x2", "y2"]
     )
 
 
@@ -229,6 +229,7 @@ def pipeline(
                     page_id,
                     figure_table_blocks[ele[0]].id,
                     caption_blocks[ele[1]].text,
+                    *caption_blocks[ele[1]].coordinates,
                 ]
             )
 
@@ -253,12 +254,14 @@ def pipeline(
                 cur_interval = union_intervals(
                     page_section["intervals"][prev_len:cur_len]
                 )
+                cur_block = union_blocks(cur_page.tokens[slice(*cur_interval)])
                 final_section_headers.append(
                     [
                         page_section["index"],
                         page_id,
                         cur_interval,
-                        " ".join(cur_page.tokens[slice(*cur_interval)].get_texts()),
+                        cur_block.text,
+                        *cur_block.coordinates,
                     ]
                 )
                 prev_len = cur_len
@@ -292,33 +295,42 @@ def pipeline(
             for gp, seq in itertools.groupby(line_to_block_id):
                 cur_len = prev_len + len(list(seq))
                 cur_intervals = page_paragraph["intervals"][prev_len:cur_len]
+                cur_block = union_blocks(
+                    select_tokens_based_on_intervals(cur_page.tokens, cur_intervals)
+                )
                 final_paragraphs.append(
                     [
                         page_paragraph["index"],
                         page_id,
                         cur_intervals,
-                        " ".join(
-                            select_tokens_based_on_intervals(
-                                cur_page.tokens, cur_intervals
-                            ).get_texts()
-                        ),
+                        cur_block.text,
+                        *cur_block.coordinates,
                     ]
                 )
                 prev_len = cur_len
 
     caption_df = pd.DataFrame(
-        final_captions, columns=["index", "block_type", "page", "block_id", "text"]
+        final_captions,
+        columns=[
+            "index",
+            "block_type",
+            "page",
+            "block_id",
+            "text",
+            "x1",
+            "y1",
+            "x2",
+            "y2",
+        ],
     )
     section_df = pd.DataFrame(
-        final_section_headers, columns=["index", "page", "intervals", "text"]
+        final_section_headers,
+        columns=["index", "page", "intervals", "text", "x1", "y1", "x2", "y2"],
     )
     paragraph_df = pd.DataFrame(
-        final_paragraphs, columns=["index", "page", "intervals", "text"]
+        final_paragraphs,
+        columns=["index", "page", "intervals", "text", "x1", "y1", "x2", "y2"],
     )
-
-    tmp = df.merge(
-        paragraph_df, on=["index", "page"], how="outer", suffixes=["", "_paragraph"]
-    ).merge(section_df, on=["index", "page"], how="outer", suffixes=["", "_section"])
 
     tmp = df.copy()
     tmp["text"] = None
@@ -335,20 +347,23 @@ def pipeline(
         section_df, on=["index", "page"], how="outer", suffixes=["", "_section"]
     )
     idx = tmp[~tmp["intervals_section"].isna()].index
-    tmp.loc[idx, "intervals"] = tmp.loc[idx, "intervals_section"]
-    tmp.loc[idx, "text"] = tmp.loc[idx, "text_section"]
-    tmp = tmp.drop(columns=["intervals_section", "text_section"])
+    columns_to_merge = ["intervals", "text", "x1", "y1", "x2", "y2"]
+    for col in columns_to_merge:
+        tmp.loc[idx, col] = tmp.loc[idx, f"{col}_section"]
+    tmp = tmp.drop(columns=[f"{col}_section" for col in columns_to_merge])
 
     tmp = tmp.merge(
         caption_df, on=["index", "page"], how="outer", suffixes=["", "_caption"]
     )
     idx = tmp[~tmp["text_caption"].isna()].index
-    tmp.loc[idx, "text"] = tmp.loc[idx, "text_caption"]
-    tmp = tmp.drop(columns=["text_caption"])
+    columns_to_merge = ["text", "x1", "y1", "x2", "y2"]
+    for col in columns_to_merge:
+        tmp.loc[idx, col] = tmp.loc[idx, f"{col}_caption"]
+    tmp = tmp.drop(columns=[f"{col}_caption" for col in columns_to_merge])
 
     idx = tmp[tmp["text"].isna()].index
-    tmp.loc[idx, "text"] = tmp.loc[idx].apply(
-        partial(get_text_for_intervals, page_tokens=page_tokens), axis=1
+    tmp.loc[idx, ['text', 'x1', 'y1', 'x2', 'y2']] = tmp.loc[idx].apply(
+        partial(get_text_coord_for_intervals, page_tokens=page_tokens), axis=1
     )
 
     if return_csv:
