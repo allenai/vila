@@ -38,10 +38,10 @@ And the parsing of papers can be surprising simple:
 
 The returned CSV looks like this:
 
-|      | page | type      | text                                                                                            | block_type | block_id |
-| ---: | ---: | :-------- | :---------------------------------------------------------------------------------------------- | ---------: | -------: |
-|    0 |    0 | Title     | VILA: Improving Structured Content Extraction from Scientiﬁc PDFs Using ...                     |            |          |
-|    1 |    0 | Author    | Some Author ...                                                                                 |            |          |
+|      | page | type      | text                                                                                            | block_type | block_id |      x1 |      y1 |      x2 |      y2 |
+| ---: | ---: | :-------- | :---------------------------------------------------------------------------------------------- | ---------: | -------: | ------: | ------: | ------: | ------: |
+|    0 |    0 | Title     | VILA: Improving Structured Content Extraction from Scientiﬁc PDFs Using ...                     |            |          |  82.806 | 70.3452 | 514.225 | 100.631 |
+|    1 |    0 | Author    | Some Author ...                                                                                 |            |          | 107.183 | 117.652 | 493.351 | 174.557 |
 |    2 |    0 | Abstract  | Abstract Accurately extracting structured content from PDFs is                                  |            |          |
 |    3 |    0 | Section   | 1 Introduction                                                                                  |            |          |
 |    4 |    0 | Paragraph | Scientiﬁc papers are usually distributed in Portable Document Format (PDF) without extensive .. |            |          |
@@ -53,6 +53,7 @@ The returned CSV looks like this:
 
 Note:
 1. If an item is a caption, it will be linked to the actual figure/caption object on that page with the corresponding `block_id`. 
+2. x1, y1, x2, y2 are the left, top, right, bottom coordinate of a rectangle block.
 
 
 ### Command line 
