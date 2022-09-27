@@ -65,6 +65,7 @@ class BaseLayoutIndicatorPDFDataPreprocessor(SimplePDFDataPreprocessor):
         """It should be implemented differently for the functions"""
 
     def preprocess_sample(self, example: Dict, padding="max_length") -> Dict:
+
         example, token_id_mapping_table = self.insert_layout_indicator(example)
 
         tokenized_inputs = self.tokenizer(
@@ -152,6 +153,17 @@ class BaseLayoutIndicatorPDFDataPreprocessor(SimplePDFDataPreprocessor):
         tokenized_inputs["encoded_word_ids"] = [
             new_id_to_original_id[ele] for ele in set(encoded_word_ids)
         ]
+
+        tgt = set(range(max(tokenized_inputs["encoded_word_ids"]) + 1))
+        src = set(tokenized_inputs["encoded_word_ids"])
+        missing = [e for e in tgt if e not in src]
+        errors = [example[self.text_column_name][token_id_mapping_table[m]] for m in missing]
+        if errors:
+            print(errors)
+            print(self.tokenizer(" ".join(errors)))
+            ord_of_errors = {ord(c) for e in errors for c in e}
+            print(f'These char IDs get dropped in huggingface: {ord_of_errors}')
+            print(f'Dont forget to add: {[unicodedata.category(i) for i in ord_of_errors]} categories to unicode replacement')
 
         return tokenized_inputs
 
