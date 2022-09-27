@@ -153,6 +153,17 @@ class BaseLayoutIndicatorPDFDataPreprocessor(SimplePDFDataPreprocessor):
             new_id_to_original_id[ele] for ele in set(encoded_word_ids)
         ]
 
+        tgt = set(range(max(tokenized_inputs["encoded_word_ids"]) + 1))
+        src = set(tokenized_inputs["encoded_word_ids"])
+        missing = [e for e in tgt if e not in src]
+        errors = [example[self.text_column_name][token_id_mapping_table[m]] for m in missing]
+
+        if errors:
+            ord_of_errors = {ord(c) for e in errors for c in e}
+            raise Exception(f'These char IDs get dropped in huggingface: {ord_of_errors}.\n'
+                            f'Dont forget to add: {[unicodedata.category(i) for i in ord_of_errors]}'
+                            f' categories to unicode replacement')
+
         return tokenized_inputs
 
 
