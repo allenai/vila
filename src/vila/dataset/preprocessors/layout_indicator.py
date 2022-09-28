@@ -160,9 +160,9 @@ class BaseLayoutIndicatorPDFDataPreprocessor(SimplePDFDataPreprocessor):
 
         if errors:
             ord_of_errors = {ord(c) for e in errors for c in e}
-            raise Exception(f'These char IDs get dropped in huggingface: {ord_of_errors}.\n'
-                            f'Dont forget to add: {[unicodedata.category(i) for i in ord_of_errors]}'
-                            f' categories to unicode replacement')
+            raise AssertionError(f'These char IDs get dropped in huggingface: {ord_of_errors}.\n'
+                                 f'Dont forget to add: {[unicodedata.category(chr(i)) for i in ord_of_errors]}'
+                                 f' categories to unicode replacement')
 
         return tokenized_inputs
 
