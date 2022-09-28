@@ -15,6 +15,6 @@ MAX_2D_POSITION_EMBEDDINGS = 1024
 MODEL_PDF_WIDTH = 1000
 MODEL_PDF_HEIGHT = 1000
 
-UNICODE_CATEGORIES_TO_REPLACE = ["Cc", "Cf", "Co", "Cs", "Mn", "Zl", "Zp", "Zs"]
+UNICODE_CATEGORIES_TO_REPLACE = ["Cc", "Cf", "Co", "Cs", "Mn", "Zl", "Zp", "Zs", "So"]
 # Based on the rules in the bert Normalizer in the HF tokenizers 
 # https://github.com/huggingface/tokenizers/blob/adf90dcd722cbc20af930441988b317a19815878/tokenizers/src/normalizers/bert.rs#L77
