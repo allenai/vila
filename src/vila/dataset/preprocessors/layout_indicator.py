@@ -64,7 +64,23 @@ class BaseLayoutIndicatorPDFDataPreprocessor(SimplePDFDataPreprocessor):
     def insert_layout_indicator(self, example: Dict) -> Tuple[Dict, Dict]:
         """It should be implemented differently for the functions"""
 
+    def clean_text(self, example: Dict) -> Dict:
+        """If the actual special token text, either [SEP] or [BLK], appeared in the text, 
+        we won't generate a prediction for them. 
+        A simple approach is just to remove the brackets [ or ], but this would 
+        only work for the BERT based models. 
+        """
+        words = example["words"]
+        for idx, word in enumerate(words):
+            if word in self.special_tokens_map:
+                words[idx] = words[idx].replace("[", "").replace("]", "")
+        example["words"] = words
+
+        return example
+
     def preprocess_sample(self, example: Dict, padding="max_length") -> Dict:
+
+        example = self.clean_text(example)
         example, token_id_mapping_table = self.insert_layout_indicator(example)
 
         tokenized_inputs = self.tokenizer(
