@@ -234,7 +234,42 @@ def pipeline(
                 ]
             )
 
+    final_equations = []
+
+    for page_id, page_equations in df[df["type"] == "Equation"].groupby("page"):
+        cur_page = page_tokens[page_id]
+
+        visual_equation_blocks = [
+            block for block in cur_page.blocks if block.type in ["Equation"]
+        ]
+        equation_blocks = page_equations.apply(
+            lambda e: union_blocks(
+                cur_page.tokens[slice(*union_intervals(e["intervals"]))]
+            ).set(id=e["index"]),
+            axis=1,
+        ).tolist()
+
+        paired_equations, unused_figures, unused_captions = pair_figure_caption_blocks(
+            visual_equation_blocks, equation_blocks
+        )
+
+        for ele in paired_equations:
+            final_equations.append(
+                [
+                    equation_blocks[ele[1]].id,
+                    visual_equation_blocks[ele[0]].type,
+                    page_id,
+                    visual_equation_blocks[ele[0]].id,
+                    equation_blocks[ele[1]].text,
+                    *equation_blocks[ele[1]].coordinates,
+                ]
+            )
+    final_captions += final_equations
+    # Because the dealing of equations are almost identical as the figure
+    # blocks, we can merge the list.
+
     final_section_headers = []
+
     for page_id, page_sections in df[df["type"] == "Section"].groupby("page"):
         cur_page = page_tokens[page_id]
         for idx, page_section in page_sections.iterrows():
@@ -363,19 +398,19 @@ def pipeline(
     tmp = tmp.drop(columns=[f"{col}_caption" for col in columns_to_merge])
 
     idx = tmp[tmp["text"].isna()].index
-    tmp.loc[idx, ['text', 'x1', 'y1', 'x2', 'y2']] = tmp.loc[idx].apply(
+    tmp.loc[idx, ["text", "x1", "y1", "x2", "y2"]] = tmp.loc[idx].apply(
         partial(get_text_coord_for_intervals, page_tokens=page_tokens), axis=1
     )
 
     if relative_coordinates:
-        for page_id in tmp['page'].unique():
+        for page_id in tmp["page"].unique():
             cur_page_w, cur_page_h = page_images[page_id].size
-            idx = tmp[tmp["page"]==page_id].index
-            tmp.loc[idx, 'x1'] /= cur_page_w
-            tmp.loc[idx, 'x2'] /= cur_page_w
-            tmp.loc[idx, 'y1'] /= cur_page_h
-            tmp.loc[idx, 'y2'] /= cur_page_h
-            
+            idx = tmp[tmp["page"] == page_id].index
+            tmp.loc[idx, "x1"] /= cur_page_w
+            tmp.loc[idx, "x2"] /= cur_page_w
+            tmp.loc[idx, "y1"] /= cur_page_h
+            tmp.loc[idx, "y2"] /= cur_page_h
+
     if return_csv:
         return tmp.drop(columns=["index", "intervals"])
 
