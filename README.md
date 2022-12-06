@@ -2,8 +2,17 @@
 
 <a href="https://arxiv.org/abs/2106.00676"><img src="https://img.shields.io/badge/arXiv-2106.00676-b31b1b.svg" title="VILA Paper"></a>
 <a href="https://github.com/allenai/vila/blob/master/LICENSE"><img src="https://img.shields.io/pypi/l/vila" title="VILA uses Apache 2 License"></a>
+<a href="https://direct.mit.edu/tacl/article/doi/10.1162/tacl_a_00466/110438/VILA-Improving-Structured-Content-Extraction-from"><img src="https://img.shields.io/badge/TACL-2022-9cf" title="VILA is published in TACL 2022"></a>
 
-- [VILA🌴 <br> Incorporating **VI**sual **LA**yout Structures for Scientific Text Classification](#vila--incorporating-visual-layout-structures-for-scientific-text-classification)
+## Table of Contents
+<details>
+<summary>
+Expand
+</summary>
+
+- [VILA🌴  Incorporating **VI**sual **LA**yout Structures for Scientific Text Classification](#vila--incorporating-visual-layout-structures-for-scientific-text-classification)
+  - [Table of Contents](#table-of-contents)
+  - [Talk @ ACL 2022](#talk--acl-2022)
   - [Motivation](#motivation)
   - [Installation](#installation)
   - [Usage](#usage)
@@ -19,6 +28,13 @@
     - [Evaluation Toolkit](#evaluation-toolkit)
   - [Note](#note)
   - [Citation](#citation)
+</details>
+
+
+
+## Talk @ ACL 2022 
+
+[![Watch the video](https://img.youtube.com/vi/TYoEbCJbtd0/maxresdefault.jpg)](https://youtu.be/TYoEbCJbtd0)
 
 ## Motivation 
 
