@@ -213,7 +213,7 @@ The evaluation toolkit can generate a detailed report for the prediction accurac
     # table in the corresponding folder. 
   ```
 
-**Note**: this evaluation toolkits might take a long time to run as calculing the group entropy may take long. 
+**Note**: this evaluation toolkit might take a long time to run as calculating the group entropy may take long. 
 
 
 ## Note

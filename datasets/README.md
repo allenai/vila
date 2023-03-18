@@ -2,7 +2,7 @@
 
 - [S2-VLUE](#s2-vlue)
   - [Overview](#overview)
-  - [Download & Usage](#download--usage)
+  - [Download \& Usage](#download--usage)
     - [Download the exported JSON (for training language models)](#download-the-exported-json-for-training-language-models)
     - [Download the source PDFs or screenshots](#download-the-source-pdfs-or-screenshots)
   - [Datasets Details](#datasets-details)
@@ -49,7 +49,7 @@ bash ./download.sh <dataset-name> #grotoap2, docbank, s2-vl or all
 
 During the data release process, we unfortunately found that a small portion of PDFs in our dataset (22 out of 87) had additional copyright constraints of which we had been unaware. This meant that we could not directly release the data corresponding to these papers. As such, in the downloaded version, it contains only paper data created from the 65 papers. 
 
-If you are interested in the version of the dataset used for training and evaluation in our paper, please fill out this [Google Form](https://forms.gle/M1g9tQLrUtKSsDYA7) to request access. 
+If you are interested in the version of the dataset used for training and evaluation in our paper, please fill out this [Google Form](https://forms.gle/M1g9tQLrUtKSsDYA7) to request access (if you haven't hear from us within 2 weeks, please feel free to [contact Shannon](https://www.szj.io/#contact))
 
 #### Recreating the dataset from PDFs and annotations
 
